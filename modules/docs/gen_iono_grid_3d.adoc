@@ -1,0 +1,15 @@
+= gen_iono_grid_3d
+
+To generate a 3-D ionosphere grid, use the `gen_iono_grid_3d` method.
+
+=== Inputs
+
+_TBD_
+
+=== Outputs
+
+_TBD_
+
+=== Example
+
+_TODO_

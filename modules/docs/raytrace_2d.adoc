@@ -1,0 +1,155 @@
+= raytrace_2d
+
+The `raytrace_2d` routine executes a raytrace in 2-D.
+
+== Example
+
+[source,python]
+--------------------------------------------------------------------------------
+import pharlap
+
+# TODO
+--------------------------------------------------------------------------------
+
+== Inputs
+
+[options="header"]
+|===============================================================================
+| Field | Datatype | Description
+| `origin_lat` | `float` | Geodetic (WGS84) latitude (deg) of ray origin
+| `origin_lon` | `float` | Geodetic (WGS84) longitude (deg) of ray origin
+| `elevs` | `numpy.ndarray` | Array of initial elevation (deg) w.r.t. the ground
+as defined by the WGS84 ellipsoid
+| `bearing` | `float` | Bearing (deg from North) of ray
+| `freqs` | `numpy.ndarray` | Array of radio wave frequencies (MHz) of the ray
+| `nhops` | `int` | Number of hopts to be attempted
+| `tol` | `float`, `int`, or `list` | The tolerance settings
+| `irreg_flag` | `bool` | Switch indicating if irregularities are to be enabled
+or disabled.
+| `iono_en_grid` | `numpy.ndarray` | 2-D grid of ionospheric electron density
+(electrons / cm^3^)
+| `iono_en_grid_5` | `numpy.ndarray` | 2-D grid of ionospheric electron density
+(electrons / cm^3^) 5 minutes later
+| `collision_freq` | `numpy.ndarray` | 2-D grid of collision frequencies (Hz)
+| `start_height` | `float` | Start height (km) of `iono_en_grid`, etc.
+| `height_inc` | `float` | Height step (km) of `iono_en_grid`, etc.
+| `range_inc` | `float` | Range step (km) of `iono_en_grid`, etc.
+| `irreg` | `numpy.ndarray` | Array of irregularity parameters as a function of
+ground range
+| `ray_state_vec` | N/A | *This field is not yet supported.*
+|===============================================================================
+
+IMPORTANT: The parameters `iono_en_grid` through `irreg` are required on the
+first call to `raytrace_2d` but can be omitted during subsequent calls within
+the same execution.
+
+=== `tol` format
+
+_TODO_
+
+== Outputs
+
+The output of `raytrace_2d` is a tuple containing three lists: `ray_data`,
+`ray_path_data`, and `ray_state_vec`. Each list has `M` elements, where `M` is
+the number of rays simulated. Additionally, each ray can be simulated up to `N`
+hops (ground reflections).
+
+.`ray_data` format
+[options="header"]
+|===============================================================================
+| Field | Type | Description
+| `lat` | `numpy.ndarray` | Geodetic (WGS84) latitude (deg) of the end point
+| `lon` | `numpy.ndarray` | Geodetic (WGS84) longitude (deg) of the end point
+| `ground_range` | `numpy.ndarray` | Group range (km)
+| `phase_path` | `numpy.ndarray` | Phase path (km)
+| `geometric_path_length` | `numpy.ndarray` | Geometric phase path (km)
+| `initial_elev` | `numpy.ndarray` | Initial elevation (deg)
+| `final_elev` | `numpy.ndarray` | Final elevation (deg)
+| `apogee` | `numpy.ndarray` | Maximum altitude of each hop (km)
+| `gnd_rng_to_apogee` | `numpy.ndarray` | Ground range to maximum height (km)
+| `plasma_freq_at_apogee` | `numpy.ndarray` | Plasma frequency (Mhz) at apogee
+| `virtual_height` | `numpy.ndarray` | Virtual height (km)
+| `effective_range` | `numpy.ndarray` | Effective range (m)
+| `total_absorption` | `numpy.ndarray` | Total ionospheric absorption (dB)
+| `deviative_absorption` | `numpy.ndarray` | Ionospheric deviative absorption
+(dB)
+| `TEC_path` | `numpy.ndarray` | Integrated electron density along ray path (#
+of electrons in 1 m^2^ cross-section tube)
+| `Doppler_shift` | `numpy.ndarray` | Doppler shift (Hz)
+| `Doppler_spread` | `numpy.ndarray` | Doppler spread (Hz)
+| `FAI_backscatter_loss` | `numpy.ndarray` | Backscattered loss (dB) for the
+last hop due to field aligned irregularities. If there are no FAIs then this is
+set to `0` for all hops.
+| `frequency` | `float` | Carrier frequency (MHz) used for the ray
+| `nhops_attempted` | `int` | Number of hops actually attempted
+| `NRT_execution_time` | TBD | Time (s) taken to execute raytrace
+| `ray_label` | `numpy.ndarray` | Label for each hop attempted.
+|===============================================================================
+
+NOTE: All fields of type `numpy.ndarray` have the shape `1 x N`.
+
+.`ray_path_data` format
+[options="header"]
+|===============================================================================
+| Field | Type | Description
+| `initial_elev` | `float` | Initial elevation (deg) of ray
+| `frequency` | `float` | Carrier frequency (MHz) used fo rthe ray
+| `ground_range` | `numpy.ndarray` | Geodetic (WGS84) ground range (km) from
+origin to point on ground direction below ray
+| `height` | `numpy.ndarray` | Height (km) of ray above WGS84 ellipsoid
+| `group_range` | `numpy.ndarray` | Group range (km)
+| `phase_path` | `numpy.ndarray` | Phase path (km)
+| `geometric_distance` | `numpy.ndarray` | Physical distance (km) along ray path
+| `electron_density` | `numpy.ndarray` | Electron density (1/cm^3^)
+| `refractive_index` | `numpy.ndarray` | Refractive index
+| `collision_frequency` | `numpy.ndarray` | Collision frequency (MHz) at each
+point along ray
+| `cumulative_absorption` | `numpy.ndarray` | Cumulative absorption (dB) along
+ray path
+|===============================================================================
+
+NOTE: All fields of type `numpy.ndarray` have the shape `1 x P`, where `P` is
+the number of points in each ray.
+
+=== `ray_label` values
+
+[horizontal]
+1:: for ray reaching ground
+0:: for ray becoming evanescent, raytracing terminated
+-1:: for field aligned backscatter - ray reflected with appropriate scattering
+loss, raytracing terminated
+-2:: ray has penetrated the ionosphere - raytracing terminated
+-3:: raytracing has exceeded maximum ground range - raytracing terminated
+-4:: ray angular coordinate has become negative, raytracing terminated
+-5:: raytracing has exceedeed the maximum allowed points along path, raytracing
+terminated
+-6:: ray is near antipodal point (the WGS84 coordinate conversion routines are
+unrelaible), raytracing terminated
+-100:: a catastrophic error occurred, raytracing terminated
+
+.`ray_state_vec` format
+[options="header"]
+|===============================================================================
+| Field | Type | Description
+| `r` | `numpy.ndarray` | Distance (km) of ray to center of Earth
+| `Q` | `numpy.ndarray` | See equation 4 of Coleman JASTP, 59, pp2090
+| `theta` | `numpy.ndarray` | Angle (rad) subtended by ray at the center of
+Earth
+| `delta_r` | `numpy.ndarray` | &Delta;r (km) (see equation 7 of Coleman RS, 33,
+pp1188)
+| `delta_Q` | `numpy.ndarray` | &Delta;Q (see equation 8 of Coleman RS, 33,
+pp1188)
+| `deviative_absorption` | `numpy.ndarray` | Ionospheric deviative absorption
+(dB)
+| `phase_path` | `numpy.ndarray` | Phase path (km)
+| `group_path` | `numpy.ndarray` | Independent variable of RKF ODE solver
+| `group_step_size` | `numpy.ndarray` | Group path step size (km) for ODE solver
+|===============================================================================
+
+NOTE: All fields of type `numpy.ndarray` have the shape `1 x P`, where `P` is
+the number of points in each ray.
+
+== Additional Information
+
+This document is based on the documentation provided in `raytrace_2d.m` from the
+official MATLAB release of PHaRLAP.

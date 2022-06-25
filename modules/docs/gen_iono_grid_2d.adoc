@@ -1,0 +1,15 @@
+= gen_iono_grid_2d
+
+To generate a 2-D ionosphere grid, use the `gen_iono_grid_2d` method.
+
+=== Inputs
+
+_TBD_
+
+=== Outputs
+
+_TBD_
+
+=== Example
+
+_TODO_

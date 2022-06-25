@@ -1,0 +1,12 @@
+scipy
+matplotlib
+python3-tk
+pthon3-phil 
+python3-phil.imagetk
+qtpy
+PyQt5
+libxcb-randr0-dev 
+libxcb-xtest0-dev 
+libxcb-xinerama0-dev 
+libxcb-shape0-dev 
+libxcb-xkb-dev

@@ -1,0 +1,15 @@
+= raytrace_3d
+
+To execute a raytrace in 3-D, use the `raytrace_3d` method.
+
+=== Inputs
+
+_TBD_
+
+=== Outputs
+
+_TBD_
+
+=== Example
+
+_TODO_
