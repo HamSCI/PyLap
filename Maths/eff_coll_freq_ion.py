@@ -46,17 +46,19 @@ def coll_freq_ion(T_e, T_ion, elec_dens):
     print('All inputs must have the same size')
     sys.exit('coll_freq_ion')
   
+  # for  i in range (len(T_e)):
+  if (not np.isreal(T_e.any)) or (not np.isreal(T_ion.any)) or \
+     (not np.isreal(elec_dens.any)):
+     print('All inputs must be numeric and real')
+     sys.exit('coll_freq_ion')
 
-  # if (not np.isreal(T_e)) and (not np.isreal(T_ion)) and \
-  #     (not np.isreal(elec_dens)):
-  #   print('All inputs must be numeric and real')
-  #   sys.exit('coll_freq_ion')
-
+  # print (elec_dens)
   ki_sq = 2.09985255e-4 * elec_dens / T_ion
   ke_sq = 2.09985255e-4 * elec_dens / T_e
-  
-  ln_coulomb_int = 13.484870477617616 + np.log(T_e) - 0.5*np.log(ke_sq) - \
-          ((ke_sq + ki_sq) / ki_sq) * (0.5 * np.log((ki_sq + ke_sq) / ke_sq))
+  # print(ke_sq)
+  # print(ki_sq)
+
+  ln_coulomb_int = 13.484870477617616 + np.log(T_e) - 0.5*np.log(ke_sq) - ((ke_sq + ki_sq) / ki_sq) * (0.5 * np.log((ki_sq + ke_sq) / ke_sq))
 	       
   coll_freq_ion = 3.63315e-6 * elec_dens * (T_e ** (-3./2.)) * ln_coulomb_int
   return coll_freq_ion

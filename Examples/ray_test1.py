@@ -44,7 +44,8 @@
 #       All ; were remove
 #       
 #M
-#M
+#M 
+from cgi import print_environ
 import numpy as np  # py
 import time
 import ctypes as c
@@ -55,7 +56,12 @@ from Ionosphere import gen_iono_grid_2d as gen_iono
 from Plotting import plot_ray_iono_slice as plot_iono
 
 #import raytrace_2d as raytrace
+# import matplotlib
+# matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
+
+plt.switch_backend('tkagg')
 #M
 #M setup general stuff
 #M
@@ -147,7 +153,7 @@ ray_data, ray_path_data, ray_path_state = \
 toc = time.time()
 
 start_range = 0
-start_range_idx = int(start_range/range_inc)
+start_range_idx = int(start_range/range_inc) 
 end_range = 3000
 end_range_idx = int((end_range) / range_inc) + 1
 start_ht = start_height
@@ -170,7 +176,7 @@ fig_str_b = '   lat = {}, lon = {}, bearing = {}'.format(
 fig_str = fig_str_a + fig_str_b
 
 ax.set_title(fig_str)
-plt.show()
+
 
 
 
@@ -180,47 +186,47 @@ plt.show()
 #M
 
 #M call raytrace
-# nhops = 3            #M number of hops
-# freqs = 30 *np.ones(elevs.size)
-# ray_data, ray_path_data,ray_path_state = \
-#     raytrace_2d(origin_lat, origin_long, elevs, ray_bear, freqs, 
-#     nhops, tol, irregs_flag)
+nhops = 3            #M number of hops
+freqs = 30 *np.ones(elevs.size)
+ray_data, ray_path_data,ray_path_state = \
+    raytrace_2d(origin_lat, origin_long, elevs, ray_bear, freqs, 
+    nhops, tol, irregs_flag)
        
 # #M plot the rays
 
-# start_range = 0
-# start_range_idx = int(start_range / range_inc) + 1
-# end_range = 7000
-# end_range_idx = int(end_range / range_inc) + 1
-# start_ht = start_height
-# start_ht_idx = 1
-# end_ht = 597
-# end_ht_idx = int(end_ht / height_inc) + 1
-# iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
+start_range = 0
+start_range_idx = int(start_range / range_inc) 
+end_range = 7000
+end_range_idx = int(end_range / range_inc) + 1
+start_ht = start_height
+start_ht_idx = 0
+end_ht = 597
+end_ht_idx = int(end_ht / height_inc) + 1
+iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
 
-# ax2, ray_handle2 = plot_iono.plot_ray_iono_slice(iono_pf_subgrid, start_range,
-#                       end_range, range_inc, start_ht, end_ht, height_inc,
-#                       ray_path_data,linewidth=1.5, color='w')
+ax2, ray_handle2 = plot_iono.plot_ray_iono_slice(iono_pf_subgrid, start_range,
+                      end_range, range_inc, start_ht, end_ht, height_inc,
+                      ray_path_data,linewidth=1.5, color='w')
 
-# freq = freqs[0]
-# fig_str_a = '{}/{}/{}  {:02d}:{:02d}UT   {}MHz   R12 = {}'.format(
-#               UT[2], UT[1], UT[0], UT[3], UT[4], freq, R12)
-# fig_str_b = '   lat = {}, lon = {}, bearing = {}'.format(
-#              origin_lat, origin_long, ray_bear)
-# fig_str = fig_str_a + fig_str_b
-# ax2.set_title(fig_str)
+freq = freqs[0]
+fig_str_a = '{}/{}/{}  {:02d}:{:02d}UT   {}MHz   R12 = {}'.format(
+              UT[2], UT[1], UT[0], UT[3], UT[4], freq, R12)
+fig_str_b = '   lat = {}, lon = {}, bearing = {}'.format(
+             origin_lat, origin_long, ray_bear)
+fig_str = fig_str_a + fig_str_b
+ax2.set_title(fig_str)
 
 
 # #M plot three rays only
 
 
-# # iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
-# # ax3, ray_handle3 = plot_iono.plot_ray_iono_slice(iono_pf_subgrid, start_range,
-# #                     end_range, range_inc, start_ht, end_ht, height_inc,
-# #                     ray_path_data[0:3],linewidth=1.5, color='w')
-# # ray_handle3[0][0].set_linestyle('--')
-# # ray_handle3[1][0].set_linestyle(':')
-# # ax3.set_title(fig_str)
+iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
+ax3, ray_handle3 = plot_iono.plot_ray_iono_slice(iono_pf_subgrid, start_range,
+                    end_range, range_inc, start_ht, end_ht, height_inc,
+                    ray_path_data[0:3],linewidth=1.5, color='w')
+ray_handle3[0][0].set_linestyle('--')
+ray_handle3[1][0].set_linestyle(':')
+ax3.set_title(fig_str)
 
-# # print('\n')
-# #  plt.show()
+print('\n')
+plt.show()

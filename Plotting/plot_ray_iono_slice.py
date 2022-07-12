@@ -117,6 +117,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     # print(start_height,end_height, height_inc, no_heights)
     # print(heights)
     if no_heights != iono_grid_size[0]:
+            # import ipdb; ipdb.set_trace()
             print('start_height, end_height and height_inc inconsistent '
                   'with iono_grid in plot_ray_iono_slice')
             sys.exit()

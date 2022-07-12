@@ -68,7 +68,7 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
     ASSERT((PyDict_Size(input_ray_state) == 9), PyExc_ValueError,
            "incorrect number of fields in dictionary.");
 
-    PyObject *items = PyDict_Items(input_ray_state);
+    PyObject *items = PyDict_Values(input_ray_state);
 
     for (int i = 0; i < 9; i++)
     {
@@ -311,7 +311,7 @@ static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ra
 
   int ray_states_num_fields = 9;
   const char *ray_states_fields[] = {"r", "Q", "theta", "delta_r", "delta_Q",
-                                     "deviative_aborption", "phase_path", "group_path", "group_step_size"};
+                                     "deviative_absorption", "phase_path", "group_path", "group_step_size"};
 
   PyObject *py_rays = PyList_New(num_rays);
   PyObject *py_ray_paths = PyList_New(num_rays);
@@ -373,7 +373,7 @@ static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ra
     /* Ray State */
     PyObject *py_ray_state_data = PyDict_New();
 
-    for (int field_id = 0; field_id < ray_states_num_fields - 2; field_id++)
+    for (int field_id = 0; field_id < ray_states_num_fields; field_id++)
     {
       tmp = PyArray_ZEROS(1, npts_dims, NPY_DOUBLE, 0);
       tmp_data = PyArray_DATA((PyArrayObject *)tmp);

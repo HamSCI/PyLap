@@ -249,7 +249,7 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
         ycart = re_eq * np.cos(np.radians(lat_gc)) * np.sin(np.radians(lon_gc))
         zcart = re_eq * np.sin(np.radians(lat_gc))
         lat, lon, hieght = wgs84_xyz2llh.wgs84_xyz2llh(xcart, ycart, zcart)
-        #M generate the ionospheric profile
+                #M generate the ionospheric profile
         print(' in gen_iono_grid_2d ln 250 call gen_iono_profile')
         iono_pf_prof, iono_pf_prof5, iono_extra, T_e, T_ion = \
         gen_iono_profile(lat, lon, num_heights, start_height, 

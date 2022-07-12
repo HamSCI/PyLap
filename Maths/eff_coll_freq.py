@@ -59,7 +59,9 @@ def eff_coll_freq(T_e, T_ion, elec_dens, neutral_dens):
   
   #np.nan_to_num(arr)
   arr = np.sum([nu_eN2,nu_eO2, nu_eO, nu_eH, nu_eHe, nu_eAr], axis=0, dtype=object)
+  arr.shape = (arr.shape[1])
   aa= np.sum([arr,nu_ei], axis=0, dtype=object)
+  
   coll_freq = aa#np.sum(nu_eN2 + nu_eO2 + nu_eO + nu_eH + nu_eHe + nu_eAr + nu_ei)
   #import ipdb; ipdb.set_trace()
   return coll_freq     
