@@ -113,7 +113,8 @@ num_heights = 200      #M number of  heights (must be < 2000)
                                         #M IRI but is used as an example
 # implement the above by means of dictionay
 iri_options = {
-               'Ne_B0B1_model': 'Bil-2000'
+               'Ne_B0B1_model': 'Bil-2000',
+            #    'hmF2':5.0
               }   # py
 # tic
 tic = time.time() # py

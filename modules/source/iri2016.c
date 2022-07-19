@@ -94,8 +94,8 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
 
     /* Read 'iri_messages' field. */
     obj = PyDict_GetItemString(iri_options, "iri_messages");
-  
-    if (obj != NULL && PyUnicode_Check(obj)) {
+  if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -105,11 +105,14 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+  }
 
     /* Read 'foF2' field. */
     obj = PyDict_GetItemString(iri_options, "foF2");
+    //list = pyDict_Items(obj);
+    //printf("result: "+list[0]);
     if(obj!=NULL){
-      if (isdigit(obj) == 1 && !PyFloat_Check(obj)) {
+      if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
         num_valid_fields += 1;
         foF2 = (float)PyFloat_AsDouble(obj);
         jf[7] = 0;
@@ -121,7 +124,7 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     /* Read 'hmF2' field. */
     obj = PyDict_GetItemString(iri_options, "hmF2");
     if(obj != NULL){
-      if (isdigit(obj) == 1 && !PyFloat_Check(obj)) {
+      if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
         num_valid_fields += 1;
        hmF2 = (float)PyFloat_AsDouble(obj);
         jf[8] = 0;
@@ -133,7 +136,8 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
 
     /* Read 'foF1' field. */
     obj = PyDict_GetItemString(iri_options, "foF1");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       foF1 = (float)PyFloat_AsDouble(obj);
       jf[12] = 0;
@@ -141,10 +145,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'hmF1' field. */
     obj = PyDict_GetItemString(iri_options, "hmF1");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       hmF1 = (float)PyFloat_AsDouble(obj);
       jf[13] = 0;
@@ -152,10 +158,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'foE' field. */
     obj = PyDict_GetItemString(iri_options, "foE");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       foE = (float)PyFloat_AsDouble(obj);
       jf[14] = 0;
@@ -163,10 +170,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'hmE' field. */
     obj = PyDict_GetItemString(iri_options, "hmE");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       hmE = (float)PyFloat_AsDouble(obj);
       jf[15] = 0;
@@ -174,21 +183,24 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'B0' field. */
     obj = PyDict_GetItemString(iri_options, "B0");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){  
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       b0 = (float)PyFloat_AsDouble(obj);
       jf[42] = 0;
       *(oarr + 9) = b0;
     } else {
       invalid_field_flag = 1;
-    }
+    }}
 
     /* Read 'B1' field. */
     obj = PyDict_GetItemString(iri_options, "B1");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       b1 = (float)PyFloat_AsDouble(obj);
       jf[43] = 0;
@@ -196,10 +208,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'HNEA' field (Ne lower boundary). */
     obj = PyDict_GetItemString(iri_options, "HNEA");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       hnea = (float)PyFloat_AsDouble(obj);
       jf[44] = 0;
@@ -207,10 +221,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'HNEE' field (Ne upper boundary). */
     obj = PyDict_GetItemString(iri_options, "HNEE");
-    if (obj != NULL && PyFloat_Check(obj)) {
+    if(obj!=NULL){
+    if (PyFloat_Check(obj) == 1 && PyComplex_Check(obj) != 1) {
       num_valid_fields += 1;
       hnee = (float)PyFloat_AsDouble(obj);
       jf[45] = 0;
@@ -218,10 +234,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'foF2_coeffs' field. */
     obj = PyDict_GetItemString(iri_options, "foF2_coeffs");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -231,10 +249,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'Ni_model' field. */
     obj = PyDict_GetItemString(iri_options, "Ni_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -246,10 +266,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'Te_profile' field. */
     obj = PyDict_GetItemString(iri_options, "Te_profile");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -259,10 +281,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'Te_topside_model' field. */
     obj = PyDict_GetItemString(iri_options, "Te_topside_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -272,11 +295,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'Te_PF107_dependence' field. */
     obj = PyDict_GetItemString(iri_options, "Te_PF107_dependence");
-
-    if (obj != NULL && PyUnicode_Check(obj)) {
+if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -285,11 +308,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
       else { invalid_field_flag = 1; }
     } else {
       invalid_field_flag = 1;
-    }
+    }}
 
     /* Read 'Ne_tops_limited' field. */
     obj = PyDict_GetItemString(iri_options, "Ne_tops_limited");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -299,10 +323,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'Ne_profile_calc' field. */
     obj = PyDict_GetItemString(iri_options, "Ne_profile_calc");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -312,11 +337,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'Ne_B0B1_model' field. */
     obj = PyDict_GetItemString(iri_options, "Ne_B0B1_model");
-
-    if (obj != NULL && PyUnicode_Check(obj)) {
+if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
     //printf("Within the NE_B0B1_model");
 
       num_valid_fields += 1;
@@ -328,11 +354,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
       else { invalid_field_flag = 1; }
     } else {
       invalid_field_flag = 1;
-    }
+    }}
 
     /* Read 'Ne_topside_model' field. */
     obj = PyDict_GetItemString(iri_options, "Ne_topside_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -342,11 +369,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
       else { invalid_field_flag = 1; }
     } else {
       invalid_field_flag = 1;
-    }
+    }}
 
     /* Read 'F1_model' field. */
     obj = PyDict_GetItemString(iri_options, "F1_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -358,10 +386,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'D_model' field. */
     obj = PyDict_GetItemString(iri_options, "D_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -371,10 +400,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'hmF2_model' field. */
     obj = PyDict_GetItemString(iri_options, "hmF2_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -385,10 +415,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'foF2_storm' field. */
     obj = PyDict_GetItemString(iri_options, "foF2_storm");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -398,10 +430,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'hmF2_storm' field. */
     obj = PyDict_GetItemString(iri_options, "hmF2_storm");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -411,10 +445,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'foE_storm' field. */
     obj = PyDict_GetItemString(iri_options, "foE_storm");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -424,10 +459,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'topside_storm' field. */
     obj = PyDict_GetItemString(iri_options, "topside_storm");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -437,10 +473,12 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+    }
 
     /* Read 'auroral_boundary_model' field. */
     obj = PyDict_GetItemString(iri_options, "auroral_boundary_model");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -450,10 +488,11 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
-
+    }
     /* Read 'covington' field. */
     obj = PyDict_GetItemString(iri_options, "covington");
-    if (obj != NULL && PyUnicode_Check(obj)) {
+    if(obj!=NULL){
+    if (PyUnicode_Check(obj)==1) {
       num_valid_fields += 1;
       str = PyUnicode_AsUTF8(obj);
 
@@ -462,25 +501,25 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
       else { invalid_field_flag = 1; }
     } else {
       invalid_field_flag = 1;
+      }
     }
-//printf(()num_valid_fields);
-//printf((str)PyDict_Size(iri_options));
-// PySys_WriteStderr("",num_valid_fields);
-// PySys_WriteStderr("",(int)PyDict_Size(iri_options));
+
+
 
     if (num_valid_fields != (int)PyDict_Size(iri_options)) {
       PySys_WriteStderr("Warning: IRI2016 - Some of the fields of the supplied "
         "iri_options structure \n");
       PySys_WriteStderr(" are not valid fields. These fields have been "
         "ignored.\n\n");
+        
     }
 
-    // if (invalid_field_flag) {
-    //   PySys_WriteStderr("Warning: IRI2016 - Some of the fields of the supplied "
-    //     "iri_options structure\n");
-    //   PySys_WriteStderr("         have invalid values. These fields have been  "
-    //     "ignored.\n\n");
-    // }
+    if (invalid_field_flag) {
+      PySys_WriteStderr("Warning: IRI2016 - Some of the fields of the supplied "
+        "iri_options structure\n");
+      PySys_WriteStderr("         have invalid values. These fields have been  "
+        "ignored.\n\n");
+    }
 
     ASSERT(!(foF2_valid && (foF2 < 0.1f || foF2 > 100.f)), PyExc_ValueError,
       "ERROR: Invalid value for input foF2");
