@@ -59,12 +59,7 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
   jf[32] = jf[34] = jf[38] = 0;
   jf[46] = jf[47] = jf[48] = jf[49] = 0;
 
-  /* 2. A couple customizations. */
-  jf[33] = jf[21] = 0;
-  jf[20] = jf[27] = 1;
-
-  if (r12_idx > 0.0 && r12_idx <= 200.0) {
-    jf[16] = jf[24] = jf[25] = jf[26] = jf[31] = 0;
+  /* 2. A couple custR12 jf[25] = jf[26] = jf[31] = 0;
 
     float f107 = 63.75 + r12_idx * (0.728 + r12_idx * 0.00089);
     float ig12 = -12.349154 + r12_idx * (1.4683266 - r12_idx * 2.67690893e-03);
@@ -80,10 +75,13 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
   }
 
   if (num_args == 8) {
+    */
+ 
+  
+
     PyObject *obj;
     const char *str;
-
-    float foF2, hmF2, foF1, hmF1, foE, hmE;
+     float foF2, hmF2, foF1, hmF1, foE, hmE;
     float b0, b1;
     float hnea, hnee;
 
@@ -91,8 +89,7 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
         hmF1_valid = 0, hmE_valid = 0;
     int num_valid_fields = 0;
     int invalid_field_flag = 0;
-
-    /* Read 'iri_messages' field. */
+    
     obj = PyDict_GetItemString(iri_options, "iri_messages");
   if(obj!=NULL){
     if (PyUnicode_Check(obj)==1) {
@@ -556,7 +553,7 @@ if(obj!=NULL){
 
     ASSERT(!(hmF2_valid && hmE_valid && hmE > hmF2), PyExc_ValueError,
       "ERROR: hmE larger than hmF2");
-  }
+  
 
   int jmag = 0;
 
@@ -594,10 +591,12 @@ if(obj!=NULL){
   return PyTuple_Pack(2, py_outf, py_oarr);
 }
 
+
 static PyMethodDef methods[] = {
   { "iri2016", iri2016, METH_VARARGS, "" },
   { NULL, NULL, 0, NULL }
 };
+
 
 static struct PyModuleDef module = {
   PyModuleDef_HEAD_INIT,
@@ -606,6 +605,7 @@ static struct PyModuleDef module = {
   -1,
   methods
 };
+
 
 PyMODINIT_FUNC PyInit_iri2016()
 {

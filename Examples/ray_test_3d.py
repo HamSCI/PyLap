@@ -221,8 +221,8 @@ for i in range(0, num_elevs, 2):
 ax.set_title("3d Raytrace")
 leg = plt.legend(loc='upper right', shadow=True, fontsize='large')
 # get the lines and texts inside legend box
-ax.set_ylabel('Longitude (deg)')
-ax.set_xlabel('Latitude (deg)')
+ax.set_ylabel('Latitude (deg)')
+ax.set_xlabel('Longitude (deg)')
 ax.set_zlabel('Height (km)')
 # bulk-set the properties of all lines and texts
 

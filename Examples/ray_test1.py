@@ -49,6 +49,9 @@ from cgi import print_environ
 import numpy as np  # py
 import time
 import ctypes as c
+import os 
+
+# os.system('python3 setup.py install --user')
 
 
 from pylap.raytrace_2d import raytrace_2d 
@@ -150,7 +153,7 @@ ray_data, ray_path_data, ray_path_state = \
    raytrace_2d(origin_lat, origin_long, elevs, ray_bear, freqs, nhops,
                tol, irregs_flag, iono_en_grid, iono_en_grid_5,
  	       collision_freq, start_height, height_inc, range_inc, irreg)
-
+# print (ray_path_data)
 toc = time.time()
 
 start_range = 0

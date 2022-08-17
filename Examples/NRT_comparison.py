@@ -190,12 +190,12 @@ tic = time.time
                 freqs, OX_mode, nhops, tol, iono_en_grid,
                 iono_en_grid_5, collision_freq, iono_grid_parms, Bx, By, Bz,
                 geomag_grid_parms)
-NRT_total_time = toc = time.time
+# NRT_total_time = toc = time.time
 # print('\n   NRT-only execution time = #f, Total mex execution time = #f\n\n',
 #       [ray_data_N.NRT_elapsed_time], NRT_total_time)
 
 idx_goodray = []
-for i in range(0, num_elevs):
+for  i in range(0, num_elevs):
     if ray_data_N[i]['ray_label'] == 1:
         idx_goodray.append(np.argwhere(ray_data_N[i]['ray_label'] == 1))
 
@@ -280,12 +280,12 @@ for ii in range(0, num_range):
 #
 irregs_flag = 0
 print('2D NRT: generating', num_elevs, '\'no-field\' rays ...')
-tic
+# tic
 [ray_data, ray_path_data, ray_state_vec] = \
     raytrace_2d(origin_lat, origin_long, elevs, ray_bears[0], freqs, nhops,
                 tol, irregs_flag, iono_en_grid_2D, iono_en_grid_5_2D,
                 collision_freq_2D, ht_start, ht_inc, range_inc, irreg)
-NRT_total_time = toc
+# NRT_total_time = toc
 # print('\n   NRT-only execution time = #f, Total mex execution time = #f\n\n',
 #       [ray_data.NRT_elapsed_time], NRT_total_time)
 
