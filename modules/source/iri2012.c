@@ -35,7 +35,7 @@ static PyObject *iri2012(PyObject *self, PyObject *args)
 
 
   /* Parse height parameters. */
-  if (num_args >= 5) {
+  if (num_args >= 7) {
     if (num_heights < 2) num_heights = 2;
     if (num_heights > 1000) num_heights = 1000;
     heiend = heibeg + (num_heights - 1) * heistp;
