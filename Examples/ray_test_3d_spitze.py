@@ -217,12 +217,13 @@ for rayId in range(0,num_elevs):
 
 print('\n')
 
-# finished ray tracing with this ionosphere so clear it out of memory
-# clear raytrace_3d
+
 
 # plot the rays
 
-# figure(1)
+################
+### Figure 1 ###
+################
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 symsize = 5
@@ -238,7 +239,10 @@ ax.set_title('Spitze example for O mode rays')
 
 
 
-# figure(2)
+
+################
+### Figure 2 ###
+################
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111, projection='3d')
 symsize = 5
@@ -253,7 +257,10 @@ ax2.set_title('Spitze example for X mode rays')
 
 
 
-# figure(3)
+
+################
+### Figure 3 ###
+################
 fig3 = plt.figure(3)
 ax3 = fig3.add_subplot(111, projection='3d')
 symsize = 5

@@ -184,15 +184,12 @@ num_elevs = len(elevs)
 OX_mode = 0
 
 print("3D NRT: generating", num_elevs, "\'no-field\' rays ...")
-tic = time.time
 [ray_data_N, ray_N, ray_sv_N] = \
     raytrace_3d(origin_lat, origin_long, origin_ht, elevs, ray_bears,
                 freqs, OX_mode, nhops, tol, iono_en_grid,
                 iono_en_grid_5, collision_freq, iono_grid_parms, Bx, By, Bz,
                 geomag_grid_parms)
-# NRT_total_time = toc = time.time
-# print('\n   NRT-only execution time = #f, Total mex execution time = #f\n\n',
-#       [ray_data_N.NRT_elapsed_time], NRT_total_time)
+  
 
 idx_goodray = []
 for  i in range(0, num_elevs):
@@ -280,14 +277,10 @@ for ii in range(0, num_range):
 #
 irregs_flag = 0
 print('2D NRT: generating', num_elevs, '\'no-field\' rays ...')
-# tic
 [ray_data, ray_path_data, ray_state_vec] = \
     raytrace_2d(origin_lat, origin_long, elevs, ray_bears[0], freqs, nhops,
                 tol, irregs_flag, iono_en_grid_2D, iono_en_grid_5_2D,
                 collision_freq_2D, ht_start, ht_inc, range_inc, irreg)
-# NRT_total_time = toc
-# print('\n   NRT-only execution time = #f, Total mex execution time = #f\n\n',
-#       [ray_data.NRT_elapsed_time], NRT_total_time)
 
 idx_goodray_2D = []
 for i in range(0, num_elevs):
@@ -309,7 +302,10 @@ for i in range(0, num_elevs):
 #
 
 # plot the 3D and 2D results vs elevation
-# figure(1)
+
+################
+### Figure 1 ###
+################
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.scatter(elevs[0], ground_range[0], c='b',
@@ -339,7 +335,10 @@ ax.legend()
 
 
 # plot the difference between the 3D and 2D NRT results
-# figure(2)
+
+################
+### Figure 2 ###
+################
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111)
 # set(gcf, 'position', fig2_pos)

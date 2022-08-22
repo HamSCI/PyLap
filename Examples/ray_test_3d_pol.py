@@ -93,14 +93,12 @@ geomag_grid_parms = [B_lat_start, B_lat_inc, B_num_lat, B_lon_start,
 
 doppler_flag = 0
 
-tic = time.time()
 
 print('Generating ionospheric and geomag grids... ')
 [iono_pf_grid, iono_pf_grid_5, collision_freq, Bx, By, Bz] = \
     gen_iono.gen_iono_grid_3d(UT, R12, iono_grid_parms,
                      geomag_grid_parms, doppler_flag)#all within range except collision_freq
 
-toc = time.time()
 
 #  convert plasma frequency grid to  electron density in electrons/cm^3
 iono_en_grid = iono_pf_grid**2 / 80.6164e-6
@@ -123,9 +121,7 @@ ray_N = []
 # % Generate O mode ray
 # %
 OX_mode = 1
-# fprintf('Generating O-mode rays... ')
 print("Generating 0-mode rays... ")
-tic = time.time()
 
 # % first call to raytrace_3d so pass in the ionosphere
 [ray_O, ray_path_O, ray_state_vec_O] = \
@@ -133,14 +129,12 @@ tic = time.time()
  	     OX_mode, nhops, tol, iono_en_grid, iono_en_grid_5, 
 	     collision_freq, iono_grid_parms, Bx, By, Bz, geomag_grid_parms); 
 
-toc = time.time()
 
 
 # %
 # % Generate X mode ray
 # %
 OX_mode = -1
-# fprintf('Generating X-mode rays... ')
 print ("Generating x-mode rays... ")
 # % ionosphere already in memory so no need to pass it in again
 [ray_X, ray_path_X, ray_state_vec_X] = \
@@ -155,19 +149,18 @@ toc = time.time()
 OX_mode = 0
 # fprintf('Generating ''no-field'' rays... ')
 print ("Generating 'no-field' rays... ")
-tic = time.time()
+
 
 # % ionosphere already in memory so no need to pass it in again
 [ray_N, ray_path_N, ray_state_vec_N] = \
      raytrace_3d(origin_lat, origin_long, origin_ht, elev, ray_bear, freqs, 
 	     OX_mode, nhops, tol)
 
-toc = time.time()
 
-# fprintf('\n')
+
+
 print('\n')
 # % ionosphere is no longer needed by ratrace_3d so clear it.
-# clear raytrace_3d
 
 
 ####################

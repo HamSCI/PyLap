@@ -1,18 +1,34 @@
-## Install Instructions
+## Linux Install Instructions
 
-1.Download PHaRLAP toolbox for matlab and unzip to a directory
+Download Steps
 
-Note* the file structure should consist of one containing folder on the home to install the pylap, pharlap, and intel libraries to.
+1. Create a folder on the home directory where you will place all of the downloaded resources.
 
-2.Download Pylap
+2. Download PHaRLAP toolbox for matlab and unzip to the directory that you just created https://www.dst.defence.gov.au/our-technologies/pharlap-provision-high-frequency-raytracing-laboratory-propagation-studies .
 
-3. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://registrationcenter-download.intel.com/akdlm/irc_nas/17113/l_comp_lib_2020.4.304_comp.for_redist.tgz
+3. Download Pylap from github in the same directory that you just created. 
 
-4. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete
+    *Note* the easiest way to do this is to clone the repository from github using something like visual studio code *Note*
 
-Note* you must run the below commands from within the pylap project wether that means within the editor or a terminal that you have used cd to enter the install directory.
+4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://registrationcenter-download.intel.com/akdlm/irc_nas/17113/l_comp_lib_2020.4.304_comp.for_redist.tgz 
+
+5. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete
+
+
+
+Setup with script file
+
+1. cd into the pylap project directory.
+
+2. Run the setup.sh script using the command “. ./setup.sh”. running this script will promt you to enter the filepath of the folder that all of your project is installed.
+
+3. everything should be setup correctly! run the example files that are in the examples folder to make sure everything is setup correctly! if for some reason the example files do not work check the bashrc file in your home directory by using the command "nano .bashrc"(must be in the home directory).
   
-Also a setup.sh file has been created to run the below commands all at once. You may run this file within the terminal that the example files will also be run by running the command “. ./setup.sh”. Note that before you run this command the filepaths within the setup.sh file that is in the pylap project must be changed to fit your local filepaths. You can look at the current sh file to see how to properly set the filepaths.
+    *Note* This is a one time setup and does not need to be run again unless a new install is made *Note* 
+
+
+
+Manual setup
 
 5. export PHARLAP_HOME="your path to pharlap install dir"
 
@@ -36,6 +52,5 @@ Also a setup.sh file has been created to run the below commands all at once. You
 
 15. Use Example folder files as templates to test the installation
 
-
-Note* The Pol coupling file does not currently work 
+    *Note* This is not a one time setup and will have to be redone if the terminal is closed out or if the code project is closed out *Note*
 

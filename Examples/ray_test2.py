@@ -107,15 +107,14 @@ iri_options = {
                'Ne_B0B1_model': 'Bil-2000'
               }
 
-tic = time.time() 
+
 print('Generating ionospheric grid... ')
 [iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid] = \
      gen_iono.gen_iono_grid_2d(origin_lat, origin_long, R12, UT, ray_bear, 
                     max_range, num_range, range_inc, start_height, 
 		    height_inc, num_heights, kp, doppler_flag, 'iri2016', 
 		    iri_options)
-toc = time.time()
-elasped_time = toc - tic
+
 
 # convert plasma frequency grid to  electron density in electrons/cm^3
 iono_en_grid = iono_pf_grid**2 / 80.6164e-6
@@ -124,16 +123,18 @@ iono_en_grid_5 = iono_pf_grid_5**2 / 80.6164e-6
 #
 # call raytrace
 #
-tic = time.time() 
 print('Generating 2D NRT ray ...')
 [ray_data, ray_path_data, ray_state_vec] = \
       raytrace_2d(origin_lat, origin_long, elev, ray_bear, freq, nhops, tol, 
              irregs_flag, iono_en_grid, iono_en_grid_5, collision_freq, 
 	     start_height, height_inc, range_inc, irreg)
 	 	 
-toc = time.time()
 
 # plot the ray	 
+
+################
+### Figure 1 ###
+################
 plt.scatter(ray_path_data[0]['ground_range'][0], ray_path_data[0]['height'][0],
         s=None, c='b', marker= 'x', label = 'Original ray', cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -176,7 +177,6 @@ ray_state_vec_in2['group_path_step_size'] = ray_state_vec[0]['group_step_size'][
 	            start_height, height_inc, range_inc, irreg, ray_state_vec_in2)
 
 # overplot the ray	 
-# hold on
 plt.scatter(ray_path_data2[0]['ground_range'][0], ray_path_data2[0]['height'][0],
         s=None, c='r', marker= 'x', label = 'Ray unaffected by Es Layer', cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -195,13 +195,11 @@ for i in range(0,len(ray_path_data2[0]['height'])):
 ray_state_vec_in3 = ray_state_vec_in2
 ray_state_vec_in3['Q']= -ray_state_vec_in3['Q']
 
-# tic = time.time() 
 print('Generating "reflected" 2D NRT ray ...')
 [ray_data3, ray_path_data3, ray_path_data_vec3] = \
     raytrace_2d(origin_lat, origin_long, elev, ray_bear, freq, nhops, 
                 tol, irregs_flag, iono_en_grid, iono_en_grid_5, collision_freq, 
 	            start_height, height_inc, range_inc, irreg, ray_state_vec_in3)
-# toc = time.time() 
 
 # overplot the ray	 
 # hold on\

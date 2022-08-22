@@ -115,6 +115,9 @@ print('Generating {} 2D NRT rays ...'.format(num_elevs))
 	 
 # plot the rays and ionosphere
 
+################
+### Figure 1 ###
+################
 start_range = 0
 start_range_idx = int(start_range/range_inc) 
 end_range = 2000
@@ -150,6 +153,9 @@ freqs = 30 *np.ones(elevs.size)
        
 # plot the rays
 
+################
+### Figure 2 ###
+################
 start_range = 0
 start_range_idx = int(start_range / range_inc)
 end_range = 7000
@@ -175,6 +181,9 @@ ax2.set_title(fig_str)
 
 # # plot three rays only
 
+################
+### Figure 3 ###
+################
 iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
 ax3, ray_handle3 = plot_iono.plot_ray_iono_slice(iono_pf_subgrid, start_range,
                     end_range, range_inc, start_ht, end_ht, height_inc,

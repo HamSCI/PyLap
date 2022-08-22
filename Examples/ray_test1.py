@@ -119,8 +119,6 @@ iri_options = {
                'Ne_B0B1_model': 'Bil-2000',
             #    'hmF2':5.0
               }   # py
-# tic
-tic = time.time() # py
 print('Generating ionospheric grid... ')
 iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid = \
     gen_iono.gen_iono_grid_2d(origin_lat, origin_long, R12, UT, ray_bear,
@@ -128,15 +126,12 @@ iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid = \
 		     height_inc, num_heights, kp, doppler_flag, 'iri2016',
 		     iri_options)
 
-# toc
 
 #M convert plasma frequency grid to  electron density in electrons/cm^3
 iono_en_grid = (iono_pf_grid ** 2) / 80.6164e-6
 iono_en_grid_5 = (iono_pf_grid_5 ** 2) / 80.6164e-6
 
 
-toc = time.time() # py
-elasped_time = toc - tic
 
 
 #M
@@ -147,15 +142,17 @@ elasped_time = toc - tic
 #M call raytrace for a fan of rays
 #M first call to raytrace so pass in the ionospheric and geomagnetic grids
 print('Generating {} 2D NRT rays ...'.format(num_elevs))
-tic = time.time()
 
 ray_data, ray_path_data, ray_path_state = \
    raytrace_2d(origin_lat, origin_long, elevs, ray_bear, freqs, nhops,
                tol, irregs_flag, iono_en_grid, iono_en_grid_5,
  	       collision_freq, start_height, height_inc, range_inc, irreg)
 # print (ray_path_data)
-toc = time.time()
 
+
+################
+### Figure 1 ###
+################
 start_range = 0
 start_range_idx = int(start_range/range_inc) 
 end_range = 3000
@@ -185,6 +182,9 @@ ax.set_title(fig_str)
 
 
 
+################
+### Figure 2 ###
+################
 #M
 #M Example 2 - Fan of rays, 3 hops, 30 MHz
 #M
@@ -223,6 +223,9 @@ ax2.set_title(fig_str)
 
 # #M plot three rays only
 
+################
+### Figure 3 ###
+################
 
 iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
 ax3, ray_handle3 = plot_iono.plot_ray_iono_slice(iono_pf_subgrid, start_range,

@@ -132,8 +132,7 @@ tic = time.time()
                 collision_freq, iono_grid_parms, Bx, By, Bz,
                 geomag_grid_parms)
 NRT_total_time = time.time()
-# print('\n   NRT-only execution time = %f, Total mex execution time = %f\n\n', ...
-#         [ray_data_O.NRT_elapsed_time], NRT_total_time)
+
 
 for rayId in range(0, num_elevs):
     num = len(ray_O[rayId]['lat'])
@@ -156,8 +155,6 @@ tic = time.time()
     raytrace_3d(origin_lat, origin_long, origin_ht, elevs, ray_bears, freqs,
                 OX_mode, nhops, tol)
 NRT_total_time = time.time
-# fprintf('\n   NRT-only execution time = %f, Total mex execution time = %f\n\n', ...
-#         [ray_data_X.NRT_elapsed_time], NRT_total_time)
 
 for rayId in range(0, num_elevs):
     num = len(ray_X[rayId]['lat'])
@@ -179,9 +176,6 @@ print("Generating ", num_elevs, " no-field'' rays ...")
 [ray_data_N, ray_N, ray_sv_N] = \
     raytrace_3d(origin_lat, origin_long, origin_ht, elevs, ray_bears, freqs,
                 OX_mode, nhops, tol)
-# NRT_total_time = toc;
-# fprintf('\n   NRT-only execution time = %f, Total mex execution time = %f\n\n', ...
-#         [ray_data_N.NRT_elapsed_time], NRT_total_time)
 
 for rayId in range(0, num_elevs):
     num = len(ray_N[rayId]['lat'])
@@ -196,13 +190,14 @@ for rayId in range(0, num_elevs):
 print("\n")
 
 # % finished ray tracing with this ionosphere so clear it out of memory
-# clear raytrace_3d
 
+################
+### Figure 1 ###
+################
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 symsize = 5
-# open in pyplot window
-# matplotlib rc params
+
 ax.scatter(ray_O[0]['lat'][0], np.mod(ray_O[0]['lon'][0], 360), ray_O[0]['height'][0],
            zdir='z', c='b', label='O Mode', linewidth=7, linestyle=':', marker='.', s=symsize)
 ax.scatter(ray_X[0]['lat'][0], np.mod(ray_X[0]['lon'][0], 360), ray_X[0]['height'][0],
@@ -226,10 +221,13 @@ ax.set_xlabel('Longitude (deg)')
 ax.set_zlabel('Height (km)')
 # bulk-set the properties of all lines and texts
 
-# plt.savefig("Examples/results/demo.png")
 
 
-# figure(2)
+
+
+################
+### Figure 2 ###
+################
 start_range = 0
 end_range = 2000
 range_inc = 50
@@ -252,5 +250,4 @@ fig_str_b = '   lat = {}, lon = {}, bearing = {}'.format(
 fig_str = fig_str_a + fig_str_b
 
 ax.set_title(fig_str)
-# plt.savefig('Examples/results/demo2.png')
 plt.show()

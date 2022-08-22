@@ -111,6 +111,9 @@ print('Generating {} 2D NRT rays ...', num_elevs)
 
 # plot the rays and ionosphere
 
+################
+### Figure 1 ###
+################
 start_range = 0
 start_range_idx = int(start_range/range_inc)
 end_range = 2500
