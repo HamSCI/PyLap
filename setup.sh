@@ -9,8 +9,8 @@ echo "Example - /home/devindiehl/Pylap_project"
 read x
 echo ${x}
 
-export PHARLAP_HOME="${x}/PHARLAP/pharlap_4.5.0"
-echo "export PHARLAP_HOME=${x}/PHARLAP/pharlap_4.5.0" >> ~/.bashrc
+export PHARLAP_HOME="${x}/pharlap_4.5.0"
+echo "export PHARLAP_HOME=${x}/pharlap_4.5.0" >> ~/.bashrc
 
 export PYTHONPATH="${x}/PyLap" 
 echo "export PYTHONPATH=${x}/PyLap" >> ~/.bashrc
@@ -18,8 +18,8 @@ echo "export PYTHONPATH=${x}/PyLap" >> ~/.bashrc
 export LD_LIBRARY="${x}/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin"
 echo "export LD_LIBRARY=${x}/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin" >> ~/.bashrc
 
-export DIR_MODELS_REF_DAT="${x}/PHARLAP/pharlap_4.5.0/dat"
-echo "export DIR_MODELS_REF_DAT=${x}/PHARLAP/pharlap_4.5.0/dat">> ~/.bashrc
+export DIR_MODELS_REF_DAT="${x}/pharlap_4.5.0/dat"
+echo "export DIR_MODELS_REF_DAT=${x}/pharlap_4.5.0/dat">> ~/.bashrc
 
 source /home/$USER/bin/compilervars.sh intel64
 echo "source /home/$USER/bin/compilervars.sh intel64" >>  ~/.bashrc
@@ -46,5 +46,5 @@ pip3 install matplotlib numpy scipy qtpy
 python3 setup.py install --user
 else
 echo "Pylap is already setup"
-echo "if you wish to redo the setup enter the command 'nano .bashrc' in the home directory and then run the setup.sh script again"
+echo "if you wish to redo the setup enter the command 'nano .bashrc' in the home directory, delete the filepaths and then run the setup.sh script again"
 fi
