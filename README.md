@@ -34,7 +34,7 @@ Manual setup
 
 6. export PYTHONPATH="Pylap_install_dir"
 
-7. export LD_LIBRARY="/<YOUR PATH TO DIR>/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin" 
+7. export LD_LIBRARY="/"YOUR PATH TO DIR"/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin" 
 
 8. export DIR_MODELS_REF_DAT="{PHARLAP_HOME}/dat"
 
