@@ -1,9 +1,6 @@
 
 # check if the program is already setup
 
-
-
-
 if [[ ${PHARLAP_HOME} = "" ]]; then
 
 
@@ -16,14 +13,14 @@ echo ${x}
 export PHARLAP_HOME="${x}/pharlap_4.5.0"
 echo "export PHARLAP_HOME=${x}/pharlap_4.5.0" >> ~/.bashrc
 
-if [[ -d "/home/devindiehl/Pylap_project/PyLap" ]] ;
+if [[ -d "${x}/PyLap" ]] ;
 then
 export PYTHONPATH="${x}/PyLap" 
 echo "export PYTHONPATH=${x}/PyLap" >> ~/.bashrc
 echo "Pylap filepath found"
-elif [[ -d "/home/devindiehl/Pylap_project/PyLap-main" ]] ;
+elif [[ -d "${x}/PyLap-main" ]] ;
 then
-export PYTHONPATH="${x}/PyLap" 
+export PYTHONPATH="${x}/PyLap-main" 
 echo "export PYTHONPATH=${x}/PyLap-main" >> ~/.bashrc
 echo "Pylap filepath found"
 else 
@@ -39,7 +36,6 @@ echo "export DIR_MODELS_REF_DAT=${x}/pharlap_4.5.0/dat">> ~/.bashrc
 source /home/$USER/bin/compilervars.sh intel64
 echo "source /home/$USER/bin/compilervars.sh intel64" >>  ~/.bashrc
 
-<<<<<<< HEAD
 
 # echo "python3 setup.py install --user" >> ~/.bashrc
 
@@ -51,8 +47,7 @@ echo "source /home/$USER/bin/compilervars.sh intel64" >>  ~/.bashrc
 
 # export DIR_MODELS_REF_DAT="/home/devindiehl/Pylap_project/PHARLAP/pharlap_4.5.0/dat"
 
-=======
->>>>>>> 953e378b8f150f4fc8d50e1b75dbbdfd952706e6
+
 sudo apt-get install python3-tk python3-pil python3-pil.imagetk libqt5gui5 python3-pyqt5 
 
 sudo apt-get install libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
