@@ -57,7 +57,6 @@ sudo apt-get install python3-pip
 pip3 install matplotlib numpy scipy qtpy
 
 python3 setup.py install --user
-echo "python3 setup.py install --user" >> ~/.bashrc
 else
 echo "Pylap is already setup"
 echo "if you wish to redo the setup enter the command 'nano .bashrc' in the home directory, delete the filepaths and then run the setup.sh script again"
