@@ -1,5 +1,9 @@
 
 # check if the program is already setup
+
+
+
+
 if [[ ${PHARLAP_HOME} = "" ]]; then
 
 
@@ -12,8 +16,19 @@ echo ${x}
 export PHARLAP_HOME="${x}/PHARLAP/pharlap_4.5.0"
 echo "export PHARLAP_HOME=${x}/PHARLAP/pharlap_4.5.0" >> ~/.bashrc
 
+if [[ -d "/home/devindiehl/Pylap_project/PyLap" ]] ;
+then
 export PYTHONPATH="${x}/PyLap" 
 echo "export PYTHONPATH=${x}/PyLap" >> ~/.bashrc
+echo "Pylap filepath found"
+elif [[ -d "/home/devindiehl/Pylap_project/PyLap-main" ]] ;
+then
+export PYTHONPATH="${x}/PyLap" 
+echo "export PYTHONPATH=${x}/PyLap-main" >> ~/.bashrc
+echo "Pylap filepath found"
+else 
+echo "Pylap filepath not found"
+fi
 
 export LD_LIBRARY="${x}/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin"
 echo "export LD_LIBRARY=${x}/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin" >> ~/.bashrc
@@ -24,8 +39,8 @@ echo "export DIR_MODELS_REF_DAT=${x}/PHARLAP/pharlap_4.5.0/dat">> ~/.bashrc
 source /home/$USER/bin/compilervars.sh intel64
 echo "source /home/$USER/bin/compilervars.sh intel64" >>  ~/.bashrc
 
-python3 setup.py install --user
-echo "python3 setup.py install --user" >> ~/.bashrc
+
+# echo "python3 setup.py install --user" >> ~/.bashrc
 
 # export PHARLAP_HOME="/home/devindiehl/Pylap_project/PHARLAP/pharlap_4.5.0"
 
