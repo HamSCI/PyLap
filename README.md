@@ -17,10 +17,10 @@ Download Steps
 
 File Directory model
 
-├── PyLap Project folder 
-   ├── PyLap
-   ├── PHARLAP
-   └── l_comp_lib_2020.4.304_comp.for_redist
+ |-PyLap Project folder 
+   |- PyLap
+   |- PHARLAP
+   |- l_comp_lib_2020.4.304_comp.for_redist
 
 
 Setup with script file
