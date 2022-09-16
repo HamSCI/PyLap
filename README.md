@@ -8,12 +8,19 @@ Download Steps
 
 3. Download Pylap from github in the same directory that you just created. 
 
-    ## This works for either clonong the github repository or downloading it as a zip file ##
+    *Note* This works for either clonong the github repository or downloading it as a zip file *Note*
 
 4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://registrationcenter-download.intel.com/akdlm/irc_nas/17113/l_comp_lib_2020.4.304_comp.for_redist.tgz 
 
 5. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete
 
+
+File Directory model
+
+├── PyLap Project folder 
+   ├── PyLap
+   ├── PHARLAP
+   └── l_comp_lib_2020.4.304_comp.for_redist
 
 
 Setup with script file
@@ -24,7 +31,7 @@ Setup with script file
 
 3. everything should be setup correctly! run the example files that are in the examples folder to make sure everything is setup correctly! if for some reason the example files do not work check the bashrc file in your home directory by using the command "nano .bashrc"(must be in the home directory).
   
-    ## This is a one time setup and does not need to be run again unless a new install is made ##
+    *Note* This is a one time setup and does not need to be run again unless a new install is made *Note*
 
 
 
@@ -52,7 +59,7 @@ Manual setup
 
 15. Use Example folder files as templates to test the installation
 
-    ## This is not a one time setup and will have to be redone if the terminal is closed out or if the code project is closed out ##
+    *Note* This is not a one time setup and will have to be redone if the terminal is closed out or if the code project is closed out *Note*
 
 
 
