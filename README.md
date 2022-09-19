@@ -1,4 +1,8 @@
-## Linux Install Instructions
+## Linux Install Instructions ##
+
+*Note* This install is only available for Ubuntu linux systems with X86 CPU's *Note* 
+
+*Note*  It is also possible to install PyLap using WSL2 with Ubuntu for windows machines *Note* 
 
 Download Steps
 
@@ -35,7 +39,7 @@ Setup with script file
 
 
 
-Manual setup
+## Manual setup
 
 5. export PHARLAP_HOME="your path to pharlap install dir"
 
