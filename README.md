@@ -2,7 +2,7 @@
 
 *Note* This install is only available for Ubuntu linux systems with X86 CPU's *Note* 
 
-*Note*  It is also possible to install PyLap using WSL2 with Ubuntu for windows machines *Note* 
+*Note*  It is also possible to install PyLap using WSL2 with Ubuntu for windows machines running windows 10 and windows 11 *Note* 
 
 Download Steps
 
@@ -16,7 +16,7 @@ Download Steps
 
 4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://registrationcenter-download.intel.com/akdlm/irc_nas/17113/l_comp_lib_2020.4.304_comp.for_redist.tgz 
 
-5. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete
+5. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete. when promted with where to install this, the default should be the home drive (ex. [/home/UserName]). The default location is fine to use for the installation.
 
 
 File Directory model
@@ -59,9 +59,11 @@ Setup with script file
 
 13. pip3 install matplotlib numpy scipy qtpy
 
-14. python3 setup.py install –user
+14. cd $PYTHONPATH 
 
-15. Use Example folder files as templates to test the installation
+15. python3 setup.py install –user
+
+16. Use Example folder files as templates to test the installation
 
     *Note* This is not a one time setup and will have to be redone if the terminal is closed out or if the code project is closed out *Note*
 
