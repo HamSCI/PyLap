@@ -23,10 +23,10 @@
 #M         gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim, max_range, ...irreg_parms
 #M                          num_range, range_inc, start_height, height_inc, ...
 #M                          num_heights, kp, doppler_flag, profile_type, ...
-#M                          iri_options)
+#M                          iono_model_options)
 #
-#            iri_options is a dictionary with the option value pairs
-#            profile_type and iri_options are optional arguments and thus
+#            iono_model_options is a dictionary with the option value pairs
+#            profile_type and iono_model_options are optional arguments and thus
 #            stored in args
 #
 #M
@@ -69,9 +69,11 @@
 #M                        using the FIRI data for heights below 120 km, with
 #M                        interpolation between FIRI and IRI F layer
 #M
-#M   iri_options        - structure which specfies options for IRI2016 (see 
-#M                        m for details). iri_options is ignored if a
-#M                        profile_type other than IRI2016 is specified.
+#    iono_model_options   - structure which specfies additional options for model
+#XY                       - for SAMI3 this keeps the path file to the data
+#M                        - for IRI2016 (see 
+#M                        m for details). iono_model_options is ignored if a
+#M                        profile_type other than IRI2016 or SAMI3 is specified.
 #M
 #M Outputs :
 #M   iono_pf_grid   - 2d grid (height vs ground range) of ionospheric plasma
@@ -152,7 +154,8 @@
 import math
 
 import numpy as np
-#
+import scipy.interpolate as spi
+import netCDF4 as nc
 from Maths import wgs84_xyz2llh
 import sys
 from Maths import earth_radius_wgs84
@@ -183,16 +186,16 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
     pfsq_conv = 80.6163849431291e-12  #M mult. factor to convert elec density
     				     #M in m^-3 to plasma freq squared in MHz^2
     
-    #M get the iri_options structure if it has been input
+    #M get the iono_model_options structure if it has been input
     if len(args) > 0:
-        iri_options = args[0]
+        iono_model_options = args[0]
     else:
-        iri_options = {}   # pass empty dictionary
+        iono_model_options = {}   # pass empty dictionary
     
     #M make sure we have a valid profile type
     # the above comment does not apply to the python code since we use
     # defalut value
-
+  
 
     if profile_type.lower() != 'chapman_fllhc' and \
     	profile_type.lower() != 'chapman' and \
@@ -200,6 +203,7 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
       profile_type.lower() != 'iri2007'     and \
     	profile_type.lower() !=  'iri2012' and \
     	profile_type.lower() !=  'iri2016'  and \
+      profile_type.lower() != 'sami3' and \
     	profile_type.lower() !=  'firi':
         print('invalid profile type')
         sys.exit('gen_iono_grid_2d')
@@ -209,16 +213,13 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
           profile_type = 'chapman'
           fllhc_flag = 1
  
-    
     #M array of heights (km)
-    height_arr = np.linspace(0,num_heights, num_heights,True,False,int) *height_inc + start_height
+    height_arr = np.linspace(0,num_heights, num_heights,True,False,int)*height_inc + start_height
     #[0:num_heights-1].*height_inc+start_height;
 
     #M initialize arrays
     iono_parms = np.zeros((15, num_range)) * np.nan
-    
     iono_pf_grid = np.zeros((num_heights,num_range)) * np.nan
-   
     iono_pf_grid_5 = np.zeros((num_heights,num_range)) * np.nan
     iono_te_grid = np.zeros((num_heights,num_range)) * np.nan
     collision_freq = np.zeros((num_heights,num_range,)) * np.nan
@@ -237,8 +238,9 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
     #
     # note original code invoked parall*el process. Might add later after working
     #parfor rng = 1:num_range
+    print('Lattice positions generated, preparing to interpolate ionospheric grid...')
     for rng in range(0,num_range):
-        print('gen_iono_grid_2d rng loop {}'.format(rng))
+        #print('gen_iono_grid_2d rng loop {}'.format(rng))
         
         #M convert range and azimuth to geodetic lat, lon
         range_rng = rng * range_inc
@@ -250,11 +252,13 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
         zcart = re_eq * np.sin(np.radians(lat_gc))
         lat, lon, hieght = wgs84_xyz2llh.wgs84_xyz2llh(xcart, ycart, zcart)
                 #M generate the ionospheric profile
-        print(' in gen_iono_grid_2d ln 250 call gen_iono_profile')
+        #print(' in gen_iono_grid_2d ln 250 call gen_iono_profile')
+
+        # XY need to substitute in sami3 data at this point
         iono_pf_prof, iono_pf_prof5, iono_extra, T_e, T_ion = \
         gen_iono_profile(lat, lon, num_heights, start_height, 
         			 height_inc, origin_lat_gc, origin_lon_gc, 
-        			 UT, R12, profile_type, iri_options, 
+        			 UT, R12, profile_type, iono_model_options, 
         			 doppler_flag, fllhc_flag)
 
         iono_pf_grid[:,rng] = iono_pf_prof
@@ -310,8 +314,8 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
 
 def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
                     origin_lat_gc, origin_lon_gc, UT, R12,
-                    profile_type, iri_options, doppler_flag, fllhc_fla):
-  print('in gen_iono_profile')
+                    profile_type, iono_model_options, doppler_flag, fllhc_fla):
+  #print('in gen_iono_profile')
                      
   re_eq = 6378137.0                 #M equatorial radius of Earth
   #dtor = math.pi / 180.0              #M degrees to radians conversion
@@ -339,20 +343,20 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
         #M call IRI 2016, with FIRI option on
       iono, iono_extra = iri2016_firi_interp.iri2016_firi_interp(lat,
                 lon, R12, UT, start_height, height_inc, num_heights,
-                iri_options)       
+                iono_model_options)       
     
       if doppler_flag:
         iono5, iono_extra5 = iri2016_firi_interp.iri2016_firi_interp\
                 (lat, lon, R12, UT_5, start_height, height_inc,
-                num_heights, iri_options)           
+                num_heights, iono_model_options)           
     else:
           #M call IRI 2016	    
       iono, iono_extra = iri2016(lat, lon, R12, UT, start_height,
-                            height_inc, num_heights, iri_options)
+                            height_inc, num_heights, iono_model_options)
     
       if doppler_flag:
         iono5, iono_extra5 = iri2016(lat, lon, R12, UT_5, #check how its being called, 
-    	        start_height, height_inc, num_heights, iri_options)#check source for iri2016 call
+    	        start_height, height_inc, num_heights, iono_model_options)#check source for iri2016 call
         
         #M get the electron density (Num electrons per m^3)
     elec_dens = iono[0]
@@ -472,6 +476,35 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
       iono_ti_prof[iono_ti_prof == -1] = np.nan
       iono_te_prof[iono_te_prof == -1] = np.nan
   
-  print('leave gen_iono_profile')
+  if profile_type.lower() == 'sami3':
+    
+     # call sami from data path given by user
+    
+    sami_data = nc.Dataset(iono_model_options['data_path'])
+
+    # XY we need way to convert pylap user given specifications to sami data
+    #    we need to fix a lot of the data structure conversion to make this section work
+
+    fixed_time = 50 # time step : 0 to 479
+    latc = np.array(sami_data.variables['lat0G'])
+    lonc = np.array(sami_data.variables['lon0G'])
+    altc = np.array(sami_data.variables['alt0G'])
+    
+
+    # get the sami3 data looking like the other ionospheric grids
+    # we need to take the user-defined path and interpolate on it
+    # we need to output a profile that has the same data structure as the others
+
+    if doppler_flag:
+       #sami3_plus5 = ????
+       print('currently no place for this')
+
+    # sys.exit('this technically ran')
+     # interpolate sami at desired lattice points
+
+
+
+
+  #print('leave gen_iono_profile')
 
   return iono_pf_prof, iono_pf_prof5, iono_extra, iono_te_prof, iono_ti_prof
