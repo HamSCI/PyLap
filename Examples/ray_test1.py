@@ -50,12 +50,13 @@ import numpy as np  # py
 import time
 import ctypes as c
 import os 
-
+from Ionosphere import gen_iono_grid_SAMI3
 # os.system('python3 setup.py install --user')
 
 
 from pylap.raytrace_2d import raytrace_2d 
 from Ionosphere import gen_iono_grid_2d as gen_iono
+
 from Plotting import plot_ray_iono_slice as plot_iono
 
 #import raytrace_2d as raytrace
@@ -70,7 +71,7 @@ plt.switch_backend('tkagg')
 #M
 UT = [2001, 3, 15, 7, 0]#2001,3,15,14,15 makes 7:00UT    #M UT - year, month, day, hour, minute
 #  The above is not a standare Python datetime object but leaving unchanged
-R12 = 100                    #M R12 index
+R12 = 1                    #M R12 index
 speed_of_light = 2.99792458e8
   
 #elevs = [2:2:60]             #M initial ray elevation
@@ -127,6 +128,9 @@ iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid = \
 		     iri_options)
 
 
+iono_pf_grid = np.ones((200,201))
+iono_pf_grid_5 = np.ones((200,201))
+
 #M convert plasma frequency grid to  electron density in electrons/cm^3
 iono_en_grid = (iono_pf_grid ** 2) / 80.6164e-6
 iono_en_grid_5 = (iono_pf_grid_5 ** 2) / 80.6164e-6
@@ -142,6 +146,8 @@ iono_en_grid_5 = (iono_pf_grid_5 ** 2) / 80.6164e-6
 #M call raytrace for a fan of rays
 #M first call to raytrace so pass in the ionospheric and geomagnetic grids
 print('Generating {} 2D NRT rays ...'.format(num_elevs))
+
+
 
 ray_data, ray_path_data, ray_path_state = \
    raytrace_2d(origin_lat, origin_long, elevs, ray_bear, freqs, nhops,

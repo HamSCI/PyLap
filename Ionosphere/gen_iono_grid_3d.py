@@ -231,7 +231,7 @@ def gen_iono_grid_3d(UT, R12, iono_grid_parms,
         iono_pf_grid[lat_idx, :, :] = iono_pf_subgrid
         iono_pf_grid_5[lat_idx, :, :] = iono_pf_subgrid_5
         collision_freq[lat_idx, :, :] = collision_freq_subgrid
-        
+        print(iono_pf_grid.shape)
 #   %
 #   % generate magnetic field grids
 #   %
@@ -324,7 +324,7 @@ def gen_iono_subgrid(lat, lon_min, lon_inc, lon_max, ht_min, ht_inc,
 #       % call IRI2016
             [iono, iono_extra] = iri2016(lat, lon, R12, UT, ht_min, ht_inc, 
  	                           num_heights, iri_options)
-
+            print(iono.shape)
             if doppler_flag:
                 [iono5, iono_extra5] = iri2016(lat, lon, R12, UT_5, ht_min, ht_inc, 
  	                               num_heights, iri_options)
@@ -343,7 +343,6 @@ def gen_iono_subgrid(lat, lon_min, lon_inc, lon_max, ht_min, ht_inc,
                 iono_pf_subgrid_5 = np.sqrt(elec_dens5 * pfsq_conv)  
             else:
                 iono_pf_subgrid_5 = np.sqrt(elec_dens * pfsq_conv)
-
 #       % electron and ion temperatures
             T_e = iono[3]
             T_e[T_e == -1] = np.nan
@@ -519,6 +518,7 @@ def gen_iono_subgrid(lat, lon_min, lon_inc, lon_max, ht_min, ht_inc,
     #       % calculate collision frequency
                 collision_freq_subgrid[lon_idx,:] = \
                 eff_coll_freq.eff_coll_freq(T_e, T_ion, elec_dens, neutral_dens)
+    # print("test3D")
+    # print(iono_pf_subgrid[1])
 
- 
     return iono_pf_subgrid, iono_pf_subgrid_5, collision_freq_subgrid

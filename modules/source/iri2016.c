@@ -59,7 +59,14 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
   jf[32] = jf[34] = jf[38] = 0;
   jf[46] = jf[47] = jf[48] = jf[49] = 0;
 
-  /* 2. A couple custR12 jf[25] = jf[26] = jf[31] = 0;
+  /*2. A couple custR12 */
+  if (r12_idx > 0 && r12_idx <= 200) {
+    jf[16] = 0;                /* user input R12 */
+    jf[24] = 0;                /* user input F10.7 */
+    jf[26] = 0;                /* user input IG12 */
+    jf[31] = 0;                /* user input F10.7_81 */
+    jf[25] = 0;                /* default setting for foF2 storm model is off */
+  // jf[25] = jf[26] = jf[31] = 0;
 
     float f107 = 63.75 + r12_idx * (0.728 + r12_idx * 0.00089);
     float ig12 = -12.349154 + r12_idx * (1.4683266 - r12_idx * 2.67690893e-03);
@@ -73,7 +80,7 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     PyErr_SetString(PyExc_ValueError, "invalid value for R12");
     return NULL;
   }
-
+/*
   if (num_args == 8) {
     */
  
@@ -102,6 +109,17 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
     } else {
       invalid_field_flag = 1;
     }
+  }
+  /* Parse height parameters. */
+  if (num_args >= 5) {
+    if (num_heights < 2) num_heights = 2;
+    if (num_heights > 1000) num_heights = 1000;
+    height_end = height_start + (num_heights - 1) * height_step;
+  } else {
+    height_start = 1.f;
+    height_step = 1.f;
+    height_end = 2.f;
+    num_heights = 0;
   }
 
     /* Read 'foF2' field. */
@@ -607,7 +625,7 @@ static struct PyModuleDef module = {
 };
 
 
-PyMODINIT_FUNC PyInit_iri2016()
+PyMODINIT_FUNC PyInit_iri2016(void)
 {
   PyObject *m = PyModule_Create(&module);
   if (m == NULL || PyErr_Occurred()) return NULL;

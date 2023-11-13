@@ -157,6 +157,8 @@ import numpy as np
 import scipy.interpolate as spi
 import netCDF4 as nc
 from Maths import wgs84_xyz2llh
+import matplotlib as plt
+import pyproj as pj
 import sys
 from Maths import earth_radius_wgs84
 from Maths import wgs842gc_lat
@@ -180,7 +182,6 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
             max_range, num_range, range_inc, start_height,
             height_inc, num_heights, kp, doppler_flag,
             profile_type = 'iri', *args):
-
     re_eq = 6378137.0                 #M equatorial radius of Earth
     # dtor = np.radians(1.0)               #M degrees to radians conversion
     pfsq_conv = 80.6163849431291e-12  #M mult. factor to convert elec density
@@ -196,7 +197,7 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
     # the above comment does not apply to the python code since we use
     # defalut value
   
-
+    
     if profile_type.lower() != 'chapman_fllhc' and \
     	profile_type.lower() != 'chapman' and \
     	profile_type.lower() != 'iri' and \
@@ -205,7 +206,7 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
     	profile_type.lower() !=  'iri2016'  and \
       profile_type.lower() != 'sami3' and \
     	profile_type.lower() !=  'firi':
-        print('invalid profile type')
+        print('invalid profile type: ' + profile_type)
         sys.exit('gen_iono_grid_2d')
 #*
     fllhc_flag = 0
@@ -304,7 +305,7 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
         irreg_parms = np.array([strength, dip, dec, dop_spread])
         
         irreg[:,rng] = irreg_parms   
-    
+    print (iono_pf_grid.shape)
     return iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid
 
     #M
@@ -384,6 +385,8 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
       #M%%%%%%%%%%%%%%%%%
       #MThis is IRI2012 %
       #M%%%%%%%%%%%%%%%%%
+    print(iono[1])
+    print(iono.shape)
   elif profile_type.lower == 'iri2012':
     
   #        #M call IRI 2012	   
@@ -489,11 +492,81 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
     latc = np.array(sami_data.variables['lat0G'])
     lonc = np.array(sami_data.variables['lon0G'])
     altc = np.array(sami_data.variables['alt0G'])
+    denc = np.array(sami_data['dene0G'][fixed_time,:,:,:])
     
+    lat,lon = np.meshgrid(latc,lonc)
+
+    samples = 800
+    del_distance = 5000
+    bearing =80
+    wwv_10_lon= -105.0403
+    wwv_10_lat = 40.6799
+
+    earth_elipse = pj.Geod(ellps='WGS84')
+    path = earth_elipse.fwd_intermediate(wwv_10_lon, wwv_10_lat, bearing, samples, del_distance)
+    path_range=[del_distance*x for x in range(samples)]
+
+
+
+    lons = np.array(path.lons)
+    lats = np.array(path.lats)
+
+    lons = convert_lon_array_to_360(lons)
+
+    points = list(zip(lon.ravel(), lat.ravel()))
+    path_pts = list(zip(lons,lats))
+
+    # for each altiude, we need to get the density values along the path
+
+    # NOTE I will store this in an array that has 'samples' length, vstacked on top of each other
+
+    density_slice = []
+
+    for idx, alt in enumerate(altc): # this will need a new interpolating function for n samples with 100 runs, be prepared
+
+    
+
+        #r = alt+6371  # not needed for linear interpolation
+
+        den_grid = denc[:,idx,:]
+
+        values = den_grid.ravel() # NOTE the point positions won't change, so there is no reason to re-call
+
+                                  # but, it does still leave us with the elliptical vs linear position
+
+        interp = spi.LinearNDInterpolator(points, values)
+
+    
+
+        den_strip = interp(path_pts) # each of these is a length 'samples' from above
+
+        if idx ==0:
+
+            density_slice.append(np.array(den_strip)) # this is appending lengthwise
+
+            density_slice = np.array(density_slice)
+
+        else:
+
+            # the first loop I ran used the list append features all the way through, this seems to be on par time-wise
+
+            # more testing is probably necessary, but it's not what I'm trying to optimize right this second
+
+            density_slice = np.vstack((density_slice, np.array(den_strip)))
+            print(density_slice)
+    # xx,yy =np.meshgrid(path_range,altc)
+
+    # fig = plt.figure()
+    # ax = plt.subplot(111)
+    # mpbl = plt.pcolormesh(xx,yy,density_slice)
+    # ax.set_title('Electron Density')
+    # ax.set_xlabel('Range(km)')
+    # ax.set_ylabel('Altitude(km)')
+    # fig.colorbar(mpbl,orientation='horizontal',label='$N_e [cm^{-3}]$')
 
     # get the sami3 data looking like the other ionospheric grids
     # we need to take the user-defined path and interpolate on it
-    # we need to output a profile that has the same data structure as the others
+    # we need to output a profile that has the same data structure as the others: (200,201)
 
     if doppler_flag:
        #sami3_plus5 = ????
@@ -508,3 +581,28 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
   #print('leave gen_iono_profile')
 
   return iono_pf_prof, iono_pf_prof5, iono_extra, iono_te_prof, iono_ti_prof
+
+
+
+
+
+
+def convert_lon_array_to_360(lon_array):
+
+    '''convert longitude (-180 to 180) array to spherical coordinates (0 to 360)
+
+    this is essential for interpolation in the same spatial region defined by the interpolate'''
+
+    for idx,elm in enumerate(lon_array):
+
+        if lon_array[idx] < 0:
+
+            # in sami3 data 0 is the prime meridian so -179 corresponds to 181
+
+            lon_array[idx] = elm + 360
+
+ 
+
+    # careful to keep this return separate
+
+    return lon_array
