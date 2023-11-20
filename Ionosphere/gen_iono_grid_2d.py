@@ -305,7 +305,7 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
         irreg_parms = np.array([strength, dip, dec, dop_spread])
         
         irreg[:,rng] = irreg_parms   
-    print (iono_pf_grid.shape)
+    # print (iono_pf_grid.shape)
     return iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid
 
     #M
@@ -385,8 +385,8 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
       #M%%%%%%%%%%%%%%%%%
       #MThis is IRI2012 %
       #M%%%%%%%%%%%%%%%%%
-    print(iono[1])
-    print(iono.shape)
+    # print(iono[1])
+    # print(iono.shape)
   elif profile_type.lower == 'iri2012':
     
   #        #M call IRI 2012	   
@@ -553,7 +553,7 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
             # more testing is probably necessary, but it's not what I'm trying to optimize right this second
 
             density_slice = np.vstack((density_slice, np.array(den_strip)))
-            print(density_slice)
+            # print(density_slice)
     # xx,yy =np.meshgrid(path_range,altc)
 
     # fig = plt.figure()

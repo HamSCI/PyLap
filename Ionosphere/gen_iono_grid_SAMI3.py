@@ -26,6 +26,7 @@ def gen_iono_grid_SAMI3_2d(origin_lat, origin_lon, R12, UT, azim,
     sami_data = GetSAMIDataFromPath(filePath)
      # XY we need way to convert pylap user given specifications to sami data
     #    we need to fix a lot of the data structure conversion to make this section work
+  
     for dim in sami_data.dimensions.values():
         print (dim)
     for var in sami_data.variables.values():
@@ -99,12 +100,14 @@ def gen_iono_grid_SAMI3_2d(origin_lat, origin_lon, R12, UT, azim,
 
             density_slice = np.vstack((density_slice, np.array(den_strip)))
             print(density_slice)
+    return density_slice        
     # xx,yy =np.meshgrid(path_range,altc)
 
 
 def GetSAMIDataFromPath(FilePath):
     print(FilePath)
     sami_data = nc.Dataset(FilePath)
+    return sami_data
 
 
 def convert_lon_array_to_360(lon_array):

@@ -112,22 +112,22 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     #  end
     #end
     #
-    heights = np.linspace(start_height, end_height, int((end_height-start_height) / height_inc),True,False,int)
-    no_heights = heights.size + 1
-    # print(start_height,end_height, height_inc, no_heights)
-    # print(heights)
-    if no_heights != iono_grid_size[0]:
-            # import ipdb; ipdb.set_trace()
-            print('start_height, end_height and height_inc inconsistent '
-                  'with iono_grid in plot_ray_iono_slice')
-            sys.exit()
-    ranges = np.linspace(start_range, end_range, int(((end_range - start_range)
-                         + 1) / range_inc))
-    no_ranges = ranges.size + 1
-    if no_ranges != iono_grid_size[1]:
-            print('start_range, end_range and range_inc inconsistent with '
-                  'iono_grid in plot_ray_iono_slice')
-            sys.exit()
+    # heights = np.linspace(start_height, end_height, int((end_height-start_height) / height_inc),True,False,int)
+    # no_heights = heights.size + 1
+    # # print(start_height,end_height, height_inc, no_heights)
+    # # print(heights)
+    # if no_heights != iono_grid_size[0]:
+    #         # import ipdb; ipdb.set_trace()
+    #         print('start_height, end_height and height_inc inconsistent '
+    #               'with iono_grid in plot_ray_iono_slice')
+    #         sys.exit()
+    # ranges = np.linspace(start_range, end_range, int(((end_range - start_range)
+    #                      + 1) / range_inc))
+    # no_ranges = ranges.size + 1
+    # if no_ranges != iono_grid_size[1]:
+    #         print('start_range, end_range and range_inc inconsistent with '
+    #               'iono_grid in plot_ray_iono_slice')
+    #         sys.exit()
 
 
     #if isfield(ray, 'ground_range')

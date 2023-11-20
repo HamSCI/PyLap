@@ -147,6 +147,9 @@ iono_en_grid_5 = (iono_pf_grid_5 ** 2) / 80.6164e-6
 #M first call to raytrace so pass in the ionospheric and geomagnetic grids
 print('Generating {} 2D NRT rays ...'.format(num_elevs))
 
+print(iono_en_grid_5.shape)
+print(collision_freq.shape)
+print(irreg.shape)
 
 
 ray_data, ray_path_data, ray_path_state = \
