@@ -12,7 +12,7 @@ Download Steps
 
 3. Download Pylap from github in the same directory that you just created. 
 
-    *Note* This works for either clonong the github repository or downloading it as a zip file *Note*
+    *Note* This works for either cloning the github repository or downloading it as a zip file *Note*
 
 4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://registrationcenter-download.intel.com/akdlm/irc_nas/17113/l_comp_lib_2020.4.304_comp.for_redist.tgz 
 
