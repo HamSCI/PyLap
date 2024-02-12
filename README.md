@@ -61,7 +61,7 @@ Setup with script file
 
 14. cd $PYTHONPATH 
 
-15. python3 setup.py install –user
+15. python3 setup.py install --user
 
 16. Use Example folder files as templates to test the installation
 
