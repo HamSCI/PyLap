@@ -27,7 +27,7 @@ File Directory model
    &emsp;└── l_comp_lib_2020.4.304_comp.for_redist\
 
 
-Setup with script file
+## Setup with script file
 
 1. cd into the pylap project directory.
 
