@@ -75,49 +75,22 @@ import sys
 import platform
 from qtpy.QtWidgets import QApplication
 
-# function [axis_handle, ray_handle] = plot_ray_iono_slice(iono_grid, ...
-#      start_range, end_range, range_inc, start_height, end_height, ...
-#      height_inc, ray, varargin)
+
 def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
                 start_height, end_height, height_inc, ray, **kwargs):
-    #
-    #
-    #
+
     matplotlib.use('TkAgg')
-    #
-    #   
-    #M
-    #M Input consistency and error checking
-    #M
-    #iono_grid_size = size(iono_grid)
-    iono_grid_size = iono_grid.shape
-    # print(type(ray[0]['ground_range']))
-    # print(ray[0]['ground_range'])
-    # print(iono_grid_size.shape)
+  
     
-    #if length([start_height : height_inc : end_height]) ~= iono_grid_size(1)
-    #  error('start_height, end_height and height_inc inconsistent with iono_grid')
-    #  return
-    #end
-    #if length([start_range : range_inc : end_range]) ~= iono_grid_size(2)
-    #  error('start_range, end_range and range_inc inconsistent with iono_grid')
-    #  return
-    #end
-    #
-    #if ~isempty(ray)
-    #  if (~isfield(ray, 'height')) | ...
-    #     (~isfield(ray, 'gndrng') & ~isfield(ray, 'ground_range'))
-    #    error('input ray is not correct type')
-    #    return
-    #  end
-    #end
-    #
+    #M Input consistency and error checking
+ 
+    iono_grid_size = iono_grid.shape
+  
+   
     heights = np.linspace(start_height, end_height, int((end_height-start_height) / height_inc),True,False,int)
     no_heights = heights.size + 1
-    # print(start_height,end_height, height_inc, no_heights)
-    # print(heights)
+  
     if no_heights != iono_grid_size[0]:
-            # import ipdb; ipdb.set_trace()
             print('start_height, end_height and height_inc inconsistent '
                   'with iono_grid in plot_ray_iono_slice')
             sys.exit()
@@ -130,57 +103,20 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
             sys.exit()
 
 
-    #if isfield(ray, 'ground_range')
-    #  for rayId=1:length(ray)
-    #    ray(rayId).gndrng = ray(rayId).ground_range
-    #  end
-    #end
-    #
-    #for idx=1:length(ray)
-    #  if length(ray(idx).height) ~= length(ray(idx).gndrng)
-    #    error('ray height and ground range vectors have diffent lengths')
-    #    return
-    #  end
-    #end
-    # print(len(ray))
     for rayID in range(0, len(ray)):
         if 'ground_range' in ray[rayID].keys():
           ray[rayID]['gndrng'] = ray[rayID]['ground_range']
 
-    # import ipdb; ipdb.set_trace()
     for ii in range(len(ray)):
-      # print(ii)
       if(~np.isnan(np.all(ray[ii]['gndrng']))):
         np.nan_to_num(ray[ii]['gndrng'],False,0.0)
-      # print(ii, (ray[ii]['height']), (ray[ii]['gndrng']))
       if len(ray[ii]['height']) != len(ray[ii]['gndrng']):
         print('ray height and ground range vectors have diffent lengths' +
                   ' in plot_ray_iono_slice')
         sys.exit()
 
 
-    #M
-    #M set fontsizes according to OS type - Windows fonts are bigger than Mac or
-    #M linux
-    #M
-    #OS = computer
-    #if strcmp(OS, 'PCWIN')     #M Windows
-    #  fontsize1 = 13
-    #  fontsize2 = 15
-    #elseif strcmp(OS, 'MACI')  #M Mac (Intel)
-    #  fontsize1 = 16
-    #  fontsize2 = 18
-    #  scrsz = get(0, 'ScreenSize')
-    #  if scrsz(3) < 1400
-    #    fontsize1 = 12
-    #    fontsize2 = 14
-    ##elseif strcmp(OS, 'GLNXA64') | strcmp(OS, 'GLNX86')   #M Linux
-    # fontsize1 = 14
-    #  fontsize2 = 16
-    #else                       #M default
-    #  fontsize1 = 16
-    #  fontsize2 = 18
-    #end
+    
     app = QApplication(sys.argv)
     screen = app.screens()[0]
     dpi= screen.physicalDotsPerInch()
@@ -211,33 +147,16 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
         fontsize1 = 16
         fontsize2 = 16
         vert_label_corr = 0
-    #M
     #M initialize the figure
-    #M
-    #scrsz = get(0, 'ScreenSize')
+
     max_range = end_range - start_range
     
     #M determine how the display window should be sized
-    # set(gcf, 'units', 'pixel')
-    # ypos = scrsz(4)*0.25
     ypos = scrsz.height() * 0.25
-    # xsize = scrsz(3)*0.95
     xsize = scrsz.width() * 0.95
-    # ysize = scrsz(4)*0.5
     ysize = scrsz.height() * 0.5
     
-    #M if using softeare opengl then limit the size of the window to avoid
-    #M large frame buffer issues
-    # opengl_info = opengl('data')
-    # if opengl_info.Software
-    #   if xsize > 1600
-    #     shrink_factor = 1600 ./ xsize
-    #     xsize = xsize .* shrink_factor
-    #     ysize = ysize .* shrink_factor
-    #   end
-    # end
-    # set(gcf, 'Position', [1 ypos xsize ysize])
-        
+ 
     
     #M
     #M set up the axes and plot the ionosphere
@@ -245,14 +164,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     
     #M convert the coodinate frame to curved Earth geometry
     max_range_idx = max_range / range_inc + 1
-    # print(max_range, start_range, end_range, range_inc)
-    # print(start_height, end_height, height_inc)
     rad_earth = 6371.  # earth radius in km
-    # r = rad_earth + [start_height : height_inc : end_height]'
-    # gnd_range = [0 : range_inc : max_range]
-    # theta = (gnd_range - max_range/2) ./ rad_earth
-    # iono_X = r * sin(theta)
-    # iono_Y = r * cos(theta)
     r = np.add(rad_earth, np.linspace(start_height, end_height, 
                     int(((end_height - start_height) + 1) / height_inc) + 1))
     gnd_range = np.linspace(0, max_range, int((max_range +1) / range_inc) + 1)
@@ -260,107 +172,65 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     rt = r.reshape((-1, 1))  # doing the transpose
     iono_X = np.multiply(rt, np.sin(theta))
     iono_Y = np.multiply(rt, np.cos(theta))
-    # print(iono_X.shape, iono_Y.shape, iono_grid.shape)
     
     #M plot the ionospheric slice
-    # handle = pcolor(iono_X, iono_Y, iono_grid)
-    # shading flat
-    # axis equal
     fig = plt.figure(figsize=(screen_width_in, screen_height_in))
-    # ax = fig.add_subplot(111)
     ax = fig.add_axes([0, 0.25, .95, 0.5])
     l, b, w, h = ax.get_position().bounds
     ax.axis('off')  # turn off rectangler suround box and tic marks
     image = plt.pcolormesh(iono_X, iono_Y, iono_grid,shading='gouraud')
     ax.set_aspect('equal')
     ax.axis('off')  # turn off rectangler suround box and tic marks
-    # plt.show(block=False)
-    # plt.savefig('plot.png')
-    # plt.draw()
-    # plt.pause(0.001)
+   
     l, b, w, h = ax.get_position().bounds
     #M set the axis to take up most of the horizontal extent - leave some space
-    #M for margin, ticks and lables
-    # min_X = min(min(iono_X))
+ 
     min_X = iono_X.min()
-    # max_X = max(max(iono_X))
     max_X = iono_X.max()
-    # min_Y = min(min(iono_Y))
     min_Y = iono_Y.min()
-    # max_Y = max(max(iono_Y))
     max_Y = iono_Y.max()
-    # hspace_for_ticks = (max_X - min_X) ./ 40
     hspace_for_ticks = (max_X - min_X) / 40
-    # vspace_for_ticks = (max_Y - min_Y) ./ 25
     vspace_for_ticks = (max_Y - min_Y) / 25
-        # set(gca, 'Xlim', [min_X - hspace_for_ticks, max_X], ...
-      # 'Ylim', [min_Y - vspace_for_ticks, max_Y], ...
-      # 'units', 'normal', 'position', [0.01 0.01 0.98 0.98], 'visible', 'Off')
-    #plt.xlim(min_X - hspace_for_ticks, max_X)
-    #plt.ylim(min_Y - vspace_for_ticks, max_Y)
+      
     #M find horizontal size of axis in pixels and calculate data-to-pixel ratio
-    # set(gca,'units','pixels')   
-    # pos_vec_pixels = get(gca, 'position')
+   
     l, b, w, h = ax.get_position().bounds
     w_pixel = scrsz.width() * w
-    # pix_ratio = pos_vec_pixels(3) ./ (max_X - min_X)
     pix_ratio = w / (max_X - min_X)
     #M determine the vertical size of axis in pixels
-    # pos_vec_pixels(4) = pix_ratio .* (max_Y - min_Y)
-    # print(l, b, w, h, pix_ratio)
+  
     pixels_height = pix_ratio * (max_Y - min_Y)
-    # pos_vec_pixels(2) = 100                #M leave space for colourbar
+           #M leave space for colourbar
     b_pixel = scrsz.height() * b
-    pixels_bottom = 100
-    # set(gca,'position', pos_vec_pixels)
-    # ax.set_position([l, pixels_bottom / scrsz.height(), w, pixels_height / 
-    #                scrsz.height()])
+    pixels_bottom = 50
+ 
     
     #M determine the vertical size of figure in pixels required to fit axes,
     #M colorbar and a margin and set the figure accordingly
-    # top = pos_vec_pixels(2) + pos_vec_pixels(4)
+    
     top = pixels_bottom + pixels_height
-    # fig_pos = get(gcf,'position')
     l, b, w, h = ax.get_position().bounds
     pos_height = top + 15
-    # set(gcf, 'Position', fig_pos)
-    # ax.set_position([l, b, w, pos_height / scrsz.height()])
+  
     #M handle of the axes
-    # axis_handle = gca
-        #M
     #M display ground-range ticks
-    #M
-    # acceptable_tick_stepsize = [100 150 200 250 500 1000]
+    
     acceptable_tick_stepsize = np.array([100, 150, 200, 250, 500, 1000])
-    # tick_stepsize = max_range ./ 8
     tick_stepsize = max_range / 8
-    # [diff, pp]  = min(abs(acceptable_tick_stepsize - tick_stepsize))
     pp = np.argmin(np.abs(acceptable_tick_stepsize - tick_stepsize))
-    # tick_stepsize = acceptable_tick_stepsize(pp)
     tick_stepsize = acceptable_tick_stepsize[pp]
 
-    # tick_gndrng = [0 : fix(max_range ./ tick_stepsize)] .* tick_stepsize
     tick_gndrng = np.multiply(np.linspace(0, int(max_range / tick_stepsize),
                                   int(max_range / tick_stepsize) + 1),
                                 tick_stepsize)
-    # tick_theta =  (tick_gndrng - max_range/2) ./ rad_earth
     tick_theta = np.divide(np.subtract(tick_gndrng, max_range / 2), rad_earth)
-    # tick_len = (max_range ./ 30000) .* 200
     tick_len = (max_range / 30000) * 200
-    # hold on  # this is the defalut status in Python
     tick_r = rad_earth + start_height
-    # for idx = 1:length(tick_theta)
     for idx in range(0, len(tick_theta)):
-        # tick_X1 = tick_r .* sin(tick_theta(idx))
-        # tick_X2 = (tick_r - tick_len) .* sin(tick_theta(idx))
-        # tick_Y1 = tick_r .* cos(tick_theta(idx))
-        # tick_Y2 = (tick_r - tick_len) .* cos(tick_theta(idx))
-        # plot([tick_X1 tick_X2], [tick_Y1 tick_Y2], 'k', 'LineWidth', 2)
         tick_X1 = tick_r * np.sin(tick_theta[idx])
         tick_X2 = (tick_r - tick_len) * np.sin(tick_theta[idx])
         tick_Y1 = tick_r * np.cos(tick_theta[idx])
         tick_Y2 = (tick_r - tick_len) * np.cos(tick_theta[idx])
-        #plot([tick_X1 tick_X2], [tick_Y1 tick_Y2], 'k', 'LineWidth', 2)
         xpts = np.array([tick_X1, tick_X2])
         ypts = np.array([tick_Y1, tick_Y2])
         plt.plot(xpts, ypts, 'k', linewidth=2)
@@ -387,43 +257,19 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     acceptable_tick_stepsize = np.array([50, 100, 200, 250, 300,
                                          400, 500, 600, 1000])
     tick_stepsize = (end_height - start_height) / (num_ticks - 1)
-    # [diff, pp]  = min(abs(acceptable_tick_stepsize - tick_stepsize))
     pp  = np.argmin(np.abs(acceptable_tick_stepsize - tick_stepsize))
-    # tick_stepsize = acceptable_tick_stepsize(pp)
     tick_stepsize = acceptable_tick_stepsize[pp]
-    # if ((num_ticks - 1) .* tick_stepsize < end_height)
     if ((num_ticks - 1) * tick_stepsize) < end_height:
-    # if ((num_ticks - 1) .* tick_stepsize < end_height - tick_stepsize)
         if ((num_ticks - 1) * tick_stepsize) < end_height - tick_stepsize:
-       # if pp < length(acceptable_tick_stepsize)
             if pp < len(acceptable_tick_stepsize):
-               # tick_stepsize = acceptable_tick_ste)psize(pp+1)
                tick_stepsize = acceptable_tick_stepsize[pp+1]
         else:
              num_ticks = num_ticks + 1
     
-    # while ((num_ticks - 1) .* tick_stepsize > end_height) 
-      # num_ticks = num_ticks - 1
-    # end
+  
     while ((num_ticks - 1) * tick_stepsize) > end_height:
       num_ticks = num_ticks - 1
-     
-    # tick_theta =  (0 - max_range/2) ./ rad_earth
-    # tick_len = max_range ./ 150
-    
-    # for idx = 0:num_ticks-1
-      # tick_X1 = (rad_earth + idx .* tick_stepsize) .* sin(tick_theta)
-      # tick_X2 = tick_X1 - tick_len .* cos(abs(tick_theta))
-      # tick_Y1 = (rad_earth + idx .* tick_stepsize) .* cos(tick_theta)
-      # tick_Y2 = tick_Y1 - tick_len .* sin(abs(tick_theta))
-      # plot([tick_X1 tick_X2], [tick_Y1 tick_Y2], 'k', 'LineWidth', 2)
-      
-      # tick_label = num2str(tick_stepsize .* idx)
-      # tick_label_X = tick_X2 - tick_len ./ 2
-      # tick_label_Y = tick_Y2
-      # text(tick_label_X, tick_label_Y, tick_label, 'HorizontalAlignment', ...
-           # 'right', 'fontsize', fontsize1)
-    # end
+  
     tick_theta =  (0 - max_range / 2) / rad_earth
     tick_len = max_range / 150
     
@@ -438,21 +284,10 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
         tick_label = str(tick_stepsize * idx)
         tick_label_X = tick_X2 - tick_len / 2
         tick_label_Y = tick_Y2
-        # print(tick_label,tick_label_X,tick_label_Y,tick_theta)
         plt.text(tick_label_X, tick_label_Y, tick_label, horizontalalignment=
            'right', fontsize=fontsize1)
       #M display the 'height - axis' label
-      # text_theta = (- max_range/2) ./ rad_earth
-      # text_rot = -text_theta * 180/pi + 90
-    
-      # pos_adjust = tick_len .* ((end_height - start_height) ./ 400 + 5)
-      # ylabel_X = (rad_earth + (end_height - start_height) ./ 2) .* sin(text_theta) ...
-        # - pos_adjust .* cos(abs(tick_theta))
-      # ylabel_Y = (rad_earth + (end_height - start_height) ./ 2) .* cos(text_theta) ...
-        # - pos_adjust .* sin(abs(tick_theta))
-    
-       # text(ylabel_X, ylabel_Y, 'Altitude (km)', 'rotation', text_rot, ...
-         # 'HorizontalAlignment', 'center', 'fontsize', fontsize2
+      
     # the constant 0.007 is to increase speration of label from values
     text_theta = (0 - max_range / 2) / rad_earth
     text_rot = -text_theta * 180 / np.pi + 90
@@ -463,7 +298,6 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
                    * np.cos(np.abs(tick_theta))
     ylabel_Y = r_dist * np.cos(text_theta) - pos_adjust \
                    * np.sin(np.abs(tick_theta))
-    # print(text_theta,text_rot,pos_adjust,ylabel_X,ylabel_Y)
     
     plt.text(ylabel_X, ylabel_Y, 'Altitude (km)', rotation=text_rot,
          horizontalalignment='center', fontsize=fontsize2)
@@ -471,70 +305,14 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     #M
     #M set up the colourbar
     #M
-    #  cb_pos = zeros(1, 4)
-    # cb_pos(1) = fig_pos(3) / 5
-    # cb_pos(2) = 65
-    # cb_pos(3) = fig_pos(3) * 3 / 5
-    # cb_pos(4) = 20
-    # cb_h = colorbar('SouthOutside', 'Position', cb_pos, 'units', 'pixels')
-    # set(cb_h, 'Position', cb_pos, 'units', 'pixel', 'fontsize', fontsize1, ...
-      #   'xaxislocation', 'bottom')
-    # set(get(cb_h,'xlabel'), 'string', 'Plasma Frequency (MHz) ', 'fontsize', ...
-      #   fontsize2)
+    
     save_pos = ax.get_position().bounds
     fig.colorbar(image, ax=ax, orientation='horizontal', shrink=0.45, 
                  aspect=50, label='Plasma Freqency (MHz)')
     new_pos = ax.get_position().bounds
     ax.set_position(save_pos)
-    #M
-    #M now plot the rays
-    #M
-    # ray_handle = []
-    # for idx = 1:length(ray)
-      
-      # if ~isempty(ray(idx).gndrng)
-        
-        # #M resample ray at a finer step size
-        # len = length(ray(idx).gndrng)
-        # ray_gndrng = [ray(idx).gndrng(1) : 0.1 : ray(idx).gndrng(len)]
-        # ray_height = interp1(ray(idx).gndrng, ray(idx).height, ray_gndrng, 'pchip')
+   
     
-        #M mask out the ray where it lies outside the ionosphere image
-        # mask_idx = find(ray_gndrng < start_range  | ray_gndrng > end_range)
-        # ray_gndrng(mask_idx) = NaN
-        # mask_idx = find(ray_height < start_height | ray_height > end_height)
-        # ray_height(mask_idx) = NaN
-    
-        #M determine the coodinates of the ray in the image and plot it
-        # ray_r = ray_height + rad_earth
-        # ray_theta = (ray_gndrng - start_range - max_range/2) ./ rad_earth
-        # ray_X = ray_r .* sin(ray_theta)
-        # ray_Y = ray_r .* cos(ray_theta)
-        
-        #M set up the plot command
-        # plot_cmd = 'h = plot(ray_X, ray_Y '
-        # for ii = 1:length(varargin)
-          # if ischar(cell2mat(varargin(ii)))
-    	# plot_cmd = [plot_cmd ', ''' cell2mat(varargin(ii)) '''']
-          # else
-    	# plot_cmd = [plot_cmd ', [' num2str(cell2mat(varargin(ii))) ']']
-          # end
-        # end
-        # plot_cmd = [plot_cmd ')']
-        
-        #M execute the plot command - catch and throw any exceptions
-        # try
-          # eval(plot_cmd)
-          # ray_handle = [ray_handle, h]
-        # catch ME
-          # error(ME.message)
-        # end
-        
-      # end
-      
-    # end
-    
-    # hold off
     #M
     #M now plot the rays
     #M
@@ -542,10 +320,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     # not the code below assumes that the loop will not execute  print(ray[idx].keys())is ray is
     # an empy list
     for idx in range(len(ray)):
-    #for idx in range(len(ray)-1,len(ray)): # for testing purpose only do one ray at first 
-      # import ipdb; ipdb.set_trace()
       if len(ray[idx]['gndrng'])!=0:
-        # print(len(ray[idx]['gndrng']))
         #M resample ray at a finer step size
         no_points = int((ray[idx]['gndrng'][-1] 
                      - ray[idx]['gndrng'][0]) /
@@ -566,34 +341,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
         ray_X = ray_r * np.sin(ray_theta)
         ray_Y = ray_r * np.cos(ray_theta)
         plt.plot(ray_X, ray_Y)
-        #M set up the plot command
-        # plot_cmd = 'h = plot(ray_X, ray_Y '
-        # for ii = 1:length(varargin)
-          # if ischar(cell2mat(varargin(ii)))
-    	# plot_cmd = [plot_cmd ', ''' cell2mat(varargin(ii)) '''']
-          # else
-    	# plot_cmd = [plot_cmd ', [' num2str(cell2mat(varargin(ii))) ']']
-          # end
-        # end{'linewidth': 2, 'color': 'k'}
-        # plot_cmd = [plot_cmd ')']
-        
-        #M execute the plot command - catch and throw any exceptions
-        # try
-          # eval(plot_cmd)
-          # ray_handle = [ray_handle, h]
-        # catch MEprint(ray_handle)
-          # error(ME.message)
-        # end
-        
-      # end
-      
-    # end
-    
-    # hold off
-    
-    # plt.draw()
-    # plt.pause(0.001)
-    # plt.show()
+       
 
         plot_cmd = 'plt.plot(ray_X, ray_Y'
         for idx in kwargs.keys():
@@ -615,7 +363,6 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
         if not os.path.isdir(results_dir):
           os.makedirs(results_dir)
 
-        # plt.savefig(results_dir + sample_file_name)
-      # plt.show()
+    
     return ax, ray_handle
     
