@@ -35,7 +35,6 @@ import math
 import numpy as np  # py
 import time
 import ctypes as c
-#import plot_ray_iono_slice as plot_iono
 
 
 from Ionosphere import gen_iono_grid_3d as gen_iono
@@ -43,18 +42,16 @@ from pylap.raytrace_3d import raytrace_3d
 from Plotting import plot_ray_iono_slice as plot_ray_iono_slice
 from Maths import raz2latlon
 from Maths import latlon2raz
-#import raytrace_2d as raytrace
 import matplotlib.pyplot as plt
 
 # 2001,3,15,14,15 makes 7:00UT    #M UT - year, month, day, hour, minute
 UT = [2000, 9, 21, 0, 0]
-#  The above is not a standare Python datetime object but leaving unchanged
+#  The above is not a standard Python datetime object but leaving unchanged
 R12 = 100  # M R12 index
 speed_of_light = 2.99792458e8
 elevs = np.arange(3, 82, 1, dtype=float)  # py
 num_elevs = len(elevs)
 freq = 15.0  # M ray frequency (MHz)
-# freqs = freq.*ones(size(elevs))
 freqs = freq * np.ones(num_elevs, dtype=float)  # py
 origin_lat = -20  # M latitude of the start point of ray
 origin_long = 130  # M longitude of the start point of ray
@@ -67,12 +64,11 @@ doppler_flag = 1  # % interested in Doppler shift
 print('\n Example of 3D magneto-ionic numerical \
       raytracing for a WGS84 ellipsoidal Earth\n\n')
 
-# %
-# % generate ionospheric, geomagnetic and irregularity grids
-# %
+# 
+# generate ionospheric, geomagnetic and irregularity grids
+# 
 max_range = 10000  # M maximum range for sampling the ionosphere (km)
 num_range = 201  # M number of ranges (must be < 2000)
-# range_inc = max_range ./ (num_range - 1)   #M range cell size (km)
 range_inc = max_range / (num_range - 1)  # py
 start_height = 60  # M start height for ionospheric grid (km)
 height_inc = 2  # M height increment (km)
@@ -140,7 +136,7 @@ for rayId in range(0, num_elevs):
     lat = ray_O[rayId]['lat']
     lon = ray_O[rayId]['lon']
     ground_range[0:num] = latlon2raz.latlon2raz(lat[0:num], lon[0:num], origin_lat,
-                                                origin_long, 'wgs84')  # /1000.0
+                                                origin_long, 'wgs84')  
     ground_range = ground_range/1000.0
     ray_O[rayId]['ground_range'] = ground_range[0]
 
@@ -172,7 +168,6 @@ for rayId in range(0, num_elevs):
 OX_mode = 0
 
 print("Generating ", num_elevs, " no-field'' rays ...")
-# tic
 [ray_data_N, ray_N, ray_sv_N] = \
     raytrace_3d(origin_lat, origin_long, origin_ht, elevs, ray_bears, freqs,
                 OX_mode, nhops, tol)

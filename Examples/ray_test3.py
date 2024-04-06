@@ -29,7 +29,6 @@ from pylap.raytrace_2d import raytrace_2d
 from Ionosphere import gen_iono_grid_2d as gen_iono
 from Plotting import plot_ray_iono_slice as plot_iono
 
-#import raytrace_2d as raytrace
 import matplotlib.pyplot as plt
 
 plt.switch_backend('tkagg')
@@ -42,11 +41,9 @@ R12 = 100                   # R12 index
 speed_of_light = 2.99792458e8
 radius_earth = 6376.0
 
-#elevs = [2:2:60]             #M initial ray elevation
-elevs = np.arange(2, 62, 2, dtype = float) # py
+elevs = np.arange(2, 62, 2, dtype = float) # initial ray elevation angles
 num_elevs = len(elevs)
 freq = 10.0                 # frequency (MHz)
-# freqs = freq.*ones(size(elevs))
 freqs = freq * np.ones(num_elevs, dtype = float) # py
 ray_bear = 324.7            # bearing of rays
 origin_lat = -23.5          # latitude of the start point of rays

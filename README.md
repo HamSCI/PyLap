@@ -1,3 +1,7 @@
+# Experimental Software Warning
+
+PyLap is based on the scientific software PHaRLAP and is not meant for operational use as is stated on PHaRLAP's website. any and all risk falls to you if you are using this software.
+
 ## Linux Install Instructions ##
 
 *Note* This install is only available for Ubuntu linux systems with X86 CPU's *Note* 
