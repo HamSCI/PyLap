@@ -28,7 +28,6 @@ import numpy as np  # py
 import time
 import ctypes as c
 from Examples.ART.QP_profile_multi_seg import QP_profile_multi_seg
-#import plot_ray_iono_slice as plot_iono
 
 
 from Ionosphere import gen_iono_grid_3d as gen_iono
@@ -38,7 +37,6 @@ from Maths import raz2latlon
 from Maths import latlon2raz
 from Maths import ENU2xyz
 
-#import raytrace_2d as raytrace
 import matplotlib.pyplot as plt
 
 #
@@ -108,8 +106,8 @@ ymF2 = 75.0
 # discontinuous in the second derivative at the sgement joins. This can cause
 # problems for the ODE solver of the NRT. The following conditioning can help
 # reduce the numerical noise. Try the raytracing with and without. 
+
 idx = min(np.argwhere(en_profile != 0))
-# print(idx)
 en_profile[idx-1] = en_profile[idx]/8
 en_profile[idx-2] = en_profile[idx]/64
 
