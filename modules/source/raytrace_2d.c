@@ -420,12 +420,12 @@ static void buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
   {
     for (int j = 0; j < grid_shape[1]; j++)
     {
-      npy_intp pos[2] = {j, i};
+      npy_intp pos[2] = {i, j};
 
-      ionosphere.eN[i][j] = (*(double *)PyArray_GetPtr(iono_grid, pos)); //houses electron density
+      ionosphere.eN[j][i] = (*(double *)PyArray_GetPtr(iono_grid, pos)); //houses electron density
       //fprintf(fp,"%f ", ionosphere.eN[i][j]);
-      ionosphere.eN_5[i][j] = (*(double *)PyArray_GetPtr(iono_grid_5, pos)); //iono 5 minutes from now
-      ionosphere.col_freq[i][j] = (*(double *)PyArray_GetPtr(col_freq, pos));
+      ionosphere.eN_5[j][i] = (*(double *)PyArray_GetPtr(iono_grid_5, pos)); //iono 5 minutes from now
+      ionosphere.col_freq[j][i] = (*(double *)PyArray_GetPtr(col_freq, pos));
     }
     //fprintf(fp,"\n");
     ionosphere.irreg_strength[i] = (*(double *)PyArray_GETPTR2(irregs, 0, i)); //nope vals supposed to be really close to zero
