@@ -51,7 +51,6 @@ R12 = 100
 elev = np.array((25,), dtype = float)              #  % initial ray elevation - two rays
 num_elev = len(elev)
 freq = 10.0              #   % frequency (MHz)
-# freqs = freq * np.ones(num_elev, dtype = float)
 ray_bear = np.zeros(len(elev))             #   % initial bearing of  ray
 freqs = np.ones(len(elev))*10
 
@@ -79,7 +78,7 @@ num_lon = 5.0         # % number of longitudes (must be <= 701)
 iono_grid_parms = [lat_start, lat_inc, num_lat, lon_start, lon_inc, num_lon,
        ht_start, ht_inc, num_ht, ]
 
-B_ht_start = 60; #ht_start      #    % start height for geomagnetic grid (km)
+B_ht_start = 60;     #    % start height for geomagnetic grid (km)
 B_ht_inc = 10;                #  % height increment (km)
 B_num_ht = math.ceil(num_ht * ht_inc / B_ht_inc)
 B_lat_start = lat_start
@@ -147,7 +146,6 @@ toc = time.time()
 # % Generate 'no-field' mode ray
 # %
 OX_mode = 0
-# fprintf('Generating ''no-field'' rays... ')
 print ("Generating 'no-field' rays... ")
 
 

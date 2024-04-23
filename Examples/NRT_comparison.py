@@ -22,6 +22,8 @@
 #  well the 2D and 3D no-field NRT engines agree. You can uncomment code
 #  blocks below to use IRI instead of QP layers. The agreement is not so good,
 #  presumably this due to smoothness issues with IRI.
+#  
+#  please also not that these comments have not been correctly converted to python.
 #
 # Change log:
 #   V1.0  M.A. Cervera  11/07/2017
@@ -33,7 +35,6 @@ import numpy as np  # py
 import time
 import ctypes as c
 from Examples.ART.QP_profile_multi_seg import QP_profile_multi_seg
-#import plot_ray_iono_slice as plot_iono
 
 
 from Ionosphere import gen_iono_grid_3d as gen_iono
@@ -44,7 +45,6 @@ from Maths import raz2latlon
 from Maths import latlon2raz
 from Maths import ENU2xyz
 
-#import raytrace_2d as raytrace
 import matplotlib.pyplot as plt
 
 #
@@ -53,20 +53,19 @@ import matplotlib.pyplot as plt
 UT = [2000, 9, 21, 0, 0]           # UT - year, month, day, hour, minute
 speed_of_light = 2.99792458e8
 R12 = 100
-# initial elevation of rays
-elevs = np.arange(3, 81.05, 0.05, dtype=float)
+elevs = np.arange(3, 81.05, 0.05, dtype=float) #initial elevation of rays
 freqs = np.ones(len(elevs))*15      # frequency (MHz)
 ray_bears = np.zeros(len(elevs))    # initial bearing of rays - due north
-# ODE solver tolerance and min max stepsizes
-tol = [1e-8, 0.01, 2]
+tol = [1e-8, 0.01, 2]# ODE solver tolerance and min max stepsizes
 origin_lat = -20.0                # latitude of the start point of rays
 origin_long = 130.0               # longitude of the start point of rays
 origin_ht = 0.0                   # altitude of the start point of rays
 doppler_flag = 1                  # interested in Doppler shift
 re = 6376.0                       # radius of Earth - only required for
-# ionospheric QP layer generation
 
-# close all
+
+
+# ionospheric QP layer generation
 
 print('\n' 'Comparison of 3D NRT ("no-field") and 2D NRT for a WGS84 Earth.\n')
 print('The ionosphere used has down-range gradients but NO cross-range \n')
@@ -323,16 +322,6 @@ ax.set_ylabel('ground range (km)', fontsize=14)
 ax.set_xlabel('elevation (degrees)', fontsize=14)
 
 ax.legend()
-# plt.show()
-# hold off
-
-# fig1_pos = get(gcf, 'position')
-# fig2_pos = fig1_pos
-# fig1_pos[1] = fig1_pos[1] - 300
-# set(gcf, 'position', fig1_pos)
-
-# fig2_pos[1] = fig2_pos(1) + 300
-
 
 # plot the difference between the 3D and 2D NRT results
 
@@ -341,7 +330,6 @@ ax.legend()
 ################
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111)
-# set(gcf, 'position', fig2_pos)
 idx = []
 for i in range(0, num_elevs):
     if ray_data_N[i]['group_range'] == 1:
@@ -358,7 +346,6 @@ for i in range(0, num_elevs):
 
 ax2.scatter(elevs[0], (ground_diff[0] * 1000),
             c='b', marker='.', label='ground range')
-# hold on
 ax2.scatter(elevs[0], (group_diff[0] * 1000),
             c='r', marker='.', label='group range')
 for i in range(0, len(idx)):
@@ -369,10 +356,3 @@ ax2.set_ylabel('3D NRT (no field) - 2D NRT range (m)')
 ax2.set_xlabel('elevation (degrees)')
 ax2.set_ylim(-500, 500)
 plt.show()
-# hold off
-# set(gca, 'xlim', [0, 45], 'ylim', [-500, 500], 'fontsize', 14,
-#          'xtick', np.arange(0, 45, 5, dtype=float), 'ytick', np.arange(-500,500,100, dtype=float))
-
-# lh = legend(gca, 'ground range', 'group range')
-# set(lh, 'fontsize', 14)
-# grid on

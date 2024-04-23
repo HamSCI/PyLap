@@ -53,7 +53,6 @@ from pylap.raytrace_2d import raytrace_2d
 from Ionosphere import gen_iono_grid_2d as gen_iono
 from Plotting import plot_ray_iono_slice as plot_iono
 
-#import raytrace_2d as raytrace
 import matplotlib.pyplot as plt
 
 plt.switch_backend('tkagg')
@@ -64,11 +63,9 @@ UT = [2000, 9, 21, 21, 0]        # UT - year, month, day, hour, minute
 speed_of_light = 2.99792458e8
 R12 = 100
 
-#freq = 10.0                 # ray frequency (MHz)
 freq = np.ones(1, dtype = float)
-freq[0] = 10.0
-# elev = 10                   # ray elevation
-elev = np.ndarray(1, dtype = float)
+freq[0] = 10.0 #ray frequency (MHz)
+elev = np.ndarray(1, dtype = float) # inital elevation angles
 elev[0] = 10
 ray_bear = 329              # bearing of ray 
 origin_lat = -20.0          # latitude of the start point of ray
@@ -160,7 +157,6 @@ ray_state_vec_in2 = {'r': np.ndarray([]), 'Q': np.ndarray(1), 'theta': np.ndarra
                     'delta_r': np.ndarray(1), 'delta_Q': np.ndarray(1), 
                     'absorption': np.ndarray(1),'phase_path': np.ndarray(1), 
                     'group_path': np.ndarray(1), 'group_path_step_size': np.ndarray(1)}
-# ray_state_vec_in2 = np.ndarray(9)
 ray_state_vec_in2['r'] = ray_state_vec[0]['r'][idx]
 ray_state_vec_in2['Q'] = ray_state_vec[0]['Q'][idx]
 ray_state_vec_in2['theta'] = ray_state_vec[0]['theta'][idx]
@@ -186,12 +182,12 @@ for i in range(0,len(ray_path_data2[0]['height'])):
         s=None, c='r', marker= 'x', cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None,
         edgecolors=None, plotnonfinite=False, data=None)
-# hold off
-#
+
 # 3rd raytrace using a non-default input ray state vector - use that from a
 # point along the previous raytrace (90 km in altittude) and see if we can
 # reflect the previous raytrace 
-#
+
+
 ray_state_vec_in3 = ray_state_vec_in2
 ray_state_vec_in3['Q']= -ray_state_vec_in3['Q']
 
@@ -202,7 +198,6 @@ print('Generating "reflected" 2D NRT ray ...')
 	            start_height, height_inc, range_inc, irreg, ray_state_vec_in3)
 
 # overplot the ray	 
-# hold on\
 plt.scatter(ray_path_data3[0]['ground_range'][0], ray_path_data3[0]['height'][0],
         s=None, c='g', marker= 'x', label = 'Ray reflected by Es Layer', cmap=None, norm=None,
         vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -214,10 +209,11 @@ for i in range(0,len(ray_path_data3[0]['height'])):
         edgecolors=None, plotnonfinite=False, data=None)
 plt.plot([300, 600], [90, 90], 'k')
 plt.text(100, 90, 'Es Layer')
-# hold off
+
 #
 # display the legend
 #
+
 plt.legend(loc = 'upper right', prop={'size': 8})   
    
 print('\n')   
