@@ -104,12 +104,12 @@ print('\n'
 #M generate ionospheric, geomagnetic and irregularity grids
 #M
 max_range = 10000       #M maximum range for sampling the ionosphere (km)
-num_range = 201        #M number of ranges (must be < 2000)
+num_range = 400        #M number of ranges (must be < 2000)
 # range_inc = max_range ./ (num_range - 1)   #M range cell size (km)
 range_inc = max_range / (num_range - 1) # py
 start_height = 0        #M start height for ionospheric grid (km)
-height_inc = 3          #M height increment (km)
-num_heights = 200      #M number of  heights (must be < 2000)
+height_inc = 5          #M height increment (km)
+num_heights = 100      #M number of  heights (must be < 2000)
 
 # clear iri_options
 #iri_options.Ne_B0B1_model = 'Bil-2000'  #M this is a non-standard setting for
@@ -204,7 +204,7 @@ end_range = 7000
 end_range_idx = int(end_range / range_inc) + 1
 start_ht = start_height
 start_ht_idx = 0
-end_ht = 597
+end_ht = 300
 end_ht_idx = int(end_ht / height_inc) + 1
 iono_pf_subgrid = iono_pf_grid[start_ht_idx:end_ht_idx,start_range_idx:end_range_idx]
 

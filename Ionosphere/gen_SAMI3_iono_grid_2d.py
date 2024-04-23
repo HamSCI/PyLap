@@ -3,6 +3,7 @@ import scipy as sp
 import numpy as np
 import ipdb
 import datetime as dt
+import pandas as pd
 import tqdm
 from geographiclib.geodesic import Geodesic
 geod = Geodesic.WGS84
@@ -10,41 +11,48 @@ geod = Geodesic.WGS84
 class gen_SAMI3_iono_grid_2d:
 
     # Constructor to initialize the needed values to do the conversion
-    def __init__(self, filepath ,azimuth, transmitter_latitude, transmitter_longitude, range_step, distance, dateTime):
+    def __init__(self, filepath ,azimuth, transmitter_latitude, transmitter_longitude, range_step, height_step, distance, dateTime):
         self.filepath = filepath
         self.azimuth = azimuth
         self.transmitter_latitude = transmitter_latitude
         self.transmitter_longitude = transmitter_longitude
         self.range_step = range_step
+        self.height_step = height_step
         self.distance = distance
         self.dateTime = dateTime
-
-   
-
 
     # calls all of the funtions necesary to create the 2d profile and then returns the 2d profile 
     def get_2d_profile(self):
         SamiData = self.get_NetCDF_Data()
         interpolated_profile = self.generate_2d_profile(SamiData)
         return interpolated_profile
-
-
+    
     # gets the SAMI3 data from the provided filepath
     def get_NetCDF_Data(self):
         dataset =nc.Dataset(self.filepath)
         self.print_NetCDF_Vars(dataset)
         return dataset
-  
-
-
+    
     # prints out all variables in the netcdf file
-    def print_NetCDF_Vars(dataset):
-        print(dataset.variables)
+    def print_NetCDF_Vars(self,dataset):
+        for dim in dataset.dimensions.values():
+            print (dim)
+        for var in dataset.variables.values():
+            print (var)
 
+    # returns the index of the nearest date that is in the array of dates
+    def nearest_date_index(self, dates, target_date):
+        # Create a DatetimeIndex from the list of dates
+        date_index = pd.DatetimeIndex(dates)
+    
+        # Calculate the difference between each date in the index and the target_date
+        date_difference = abs(date_index - target_date)
+    
+        # Find the index of the nearest date
+        nearest_index = date_difference.argmin()
+    
+        return nearest_index
 
-    # returns the nearest date that is in the array of dates
-    def nearest_date(dates, target_date):
-        return min(dates, key=lambda x: abs(x - target_date))
 
     # Creates a 2D slice profile of the 3D SAMI3 grid for a transmitter location and a given Azimuth
     def generate_2d_profile(self, SAMI_Data):
@@ -54,29 +62,28 @@ class gen_SAMI3_iono_grid_2d:
         lons = np.array(SAMI_Data["lon0G"][:])
         alts = np.array(SAMI_Data["alt0G"][:])
         time = SAMI_Data["time"][:]
-        electron_density = SAMI_Data["dene0G"][:,:,:,:]
+
+        # convert to dates format that is usable 
+        start_time =dt.datetime(2023,10,13)
+        self.dates = [start_time]
+        for x in time:
+             if(x!=0):
+                next_time = dt.timedelta(hours = float(x))
+                self.dates.append(start_time+next_time - dt.timedelta(days=1))
+                
+        selected_date_idx = self.nearest_date_index(self.dates,self.dateTime)
+
+        electron_density = SAMI_Data["dene0G"][selected_date_idx,:,:,:]
 
         # changes longitudes from (0,360) to (-180,180) and sort
         tf = lons > 180
         lons[tf] = lons[tf]-360
-        inx = np.argsort(lons)
-        lons = lons[inx]
-        electron_density = electron_density[:,inx,:,:]
-
+       
         # switch altitude to the last index 
-        electron_density = np.moveaxis(electron_density,2,-1)
+        electron_density = np.moveaxis(electron_density,1,-1)
 
         # switch lattitude and logitude indexes
-        electron_density = np.moveaxis(electron_density,1,2)
-
-        # convert to dates format that is usable 
-        start_time =dt.datetime(2023,10,13)
-        dates = [start_time]
-        for x in time:
-             if(x!=0):
-                next_time = dt.timedelta(hours = float(x))
-                self.dates.append(start_time+next_time)
-
+        electron_density = np.moveaxis(electron_density,0,1)
 
         # Create meshgrid of original coordinates.
         LATS, LONS, ALTS    = np.meshgrid(lats,lons,alts,indexing='ij')
@@ -84,59 +91,38 @@ class gen_SAMI3_iono_grid_2d:
 
         # Determine the actual path of the raytrace for a given starting point, distance, azimuth
         Direct_Line = geod.DirectLine(self.transmitter_latitude,self.transmitter_longitude, self.azimuth, self.distance*1000)
-
-        # I may need to do the same thing with altitudes so that they are interpolated on a regular grid
         ranges  = np.arange(0,self.distance,self.range_step)
 
         glats   = []
         glons   = []
         for x in ranges:
-            s   = min(x*1e3,Direct_Line.s13) # invl.s13 is the total line distance in m
-            tmp = Direct_Line.Position(s,Geodesic.STANDARD)
+            total_distance   = min(x*1e3,Direct_Line.s13) # invl.s13 is the total line distance in m
+            tmp = Direct_Line.Position(total_distance,Geodesic.STANDARD)
             glat        = tmp['lat2']
             glon        = tmp['lon2']
-
             glats.append(glat)
             glons.append(glon)
         flats_flons = np.array([glats,glons]).T
-
         # Put the field points into a mesh.
-        fLATS   = np.zeros([len(ranges),len(self.alts)])
-        fLONS   = np.zeros([len(ranges),len(self.alts)])
-        fALTS   = np.zeros([len(ranges),len(self.alts)])
+        fLATS   = np.zeros([len(ranges),len(alts)])
+        fLONS   = np.zeros([len(ranges),len(alts)])
+        fALTS   = np.zeros([len(ranges),len(alts)])
         for rInx,flat_flon in enumerate(flats_flons):
             fLATS[rInx,:]   = flat_flon[0]
             fLONS[rInx,:]   = flat_flon[1]
-            fALTS[rInx,:]   = self.alts
+            fALTS[rInx,:]   = alts
 
         # do the actual interpolation into the 2D slice for a single 
+        Ne_profile  = np.zeros([1,len(ranges),len(alts)])
+        this_edens          = electron_density[:,:,:]
             
-        selected_date = self.nearest_date(self.dates,self.dateTime)
-        Ne_profile  = np.zeros([1,len(ranges),len(self.alts)])
-        # for dateInx,date in tqdm.tqdm(enumerate(self.dates),desc='Interpolating Profiles',dynamic_ncols=True):
-            # tqdm.tqdm.write('INTERP: {!s}'.format(date))
-        this_edens          = electron_density[dateInx,:,:,:]
-            
-        interp  = sp.interpolate.LinearNDInterpolator(coords,this_edens.flatten())
+        # interp  = sp.interpolate.LinearNDInterpolator(coords,this_edens.flatten())
+        interp  = sp.interpolate.NearestNDInterpolator(coords,this_edens.flatten())
 
         edens_profile       = interp(fLATS,fLONS,fALTS)
-        Ne_profile[selected_date,:,:]    = edens_profile
-
-        # Calculate range from start as an angle [radians]
-        # Computed the same way as in raydarn fortran code.
-        field_lats  = flats_flons[:,0]
-        field_lons  = flats_flons[:,1]
-        edensTHT    = np.arccos( np.cos(field_lats[0]*np.pi/180.)*np.cos(field_lats*np.pi/180.)* \
-                            np.cos((field_lons - field_lons[0])*np.pi/180.) \
-                    + np.sin(field_lats[0]*np.pi/180.)*np.sin(field_lats*np.pi/180.))
-
-        # Set initial edensTHT = 0
-        edensTHT[0] = 0
-
-
-
-
-        return Ne_profile
+        Ne_profile[:,:]    = edens_profile
+      
+        return Ne_profile[0,::]
 
 
         # # Create XArray Dataset
@@ -169,7 +155,11 @@ class gen_SAMI3_iono_grid_2d:
         # return self.profiles
 
 
-
+## to do ##
+# - make sure we are saving the interpolated data set as a netcdf file. 
+# - possibly have to make the change to account for the altitudes being irregular
+# - fill in bottom of edens with zeros to make sure graph reaches the ground (possibly use fill value on the interpolator)
+# - include plotting code for map
    
 
-  
+
