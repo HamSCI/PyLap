@@ -74,6 +74,7 @@ import matplotlib.pyplot as plt
 import sys
 import platform
 from qtpy.QtWidgets import QApplication
+import ipdb
 
 
 def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
@@ -178,7 +179,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     ax = fig.add_axes([0, 0.25, .95, 0.5])
     l, b, w, h = ax.get_position().bounds
     ax.axis('off')  # turn off rectangler suround box and tic marks
-    image = plt.pcolormesh(iono_X, iono_Y, iono_grid,shading='gouraud')
+    image = plt.pcolormesh(iono_X, iono_Y, iono_grid,shading='gouraud', vmin=0, vmax=14)
     ax.set_aspect('equal')
     ax.axis('off')  # turn off rectangler suround box and tic marks
    
@@ -299,7 +300,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     ylabel_Y = r_dist * np.cos(text_theta) - pos_adjust \
                    * np.sin(np.abs(tick_theta))
     
-    plt.text(ylabel_X, ylabel_Y, 'Altitude (km)', rotation=text_rot,
+    plt.text(ylabel_X-100, ylabel_Y, 'Altitude (km)', rotation=text_rot,
          horizontalalignment='center', fontsize=fontsize2)
     
     #M
@@ -307,11 +308,12 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
     #M
     
     save_pos = ax.get_position().bounds
-    fig.colorbar(image, ax=ax, orientation='horizontal', shrink=0.45, 
+    fig.colorbar(image, ax=ax, orientation='horizontal', shrink=0.40, 
                  aspect=50, label='Plasma Freqency (MHz)')
     new_pos = ax.get_position().bounds
-    ax.set_position(save_pos)
-   
+    new_pos = [0.09445982643511991, 0.35, 0.76108034712976, 0.50]
+    ax.set_position(new_pos)
+    
     
     #M
     #M now plot the rays
@@ -342,7 +344,7 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
         ray_Y = ray_r * np.cos(ray_theta)
         plt.plot(ray_X, ray_Y)
        
-
+       
         plot_cmd = 'plt.plot(ray_X, ray_Y'
         for idx in kwargs.keys():
             if type(kwargs[idx]) == str:
@@ -361,8 +363,13 @@ def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,
         sample_file_name = "sample10"
 
         if not os.path.isdir(results_dir):
-          os.makedirs(results_dir)
+          os.makedirs(results_dir) 
+          
+        # break
 
-    
+
+    # plt.scatter([440],[6571],s=500,marker='*',color='red',ec='k',zorder=100,clip_on=False,)
+    # ipdb.set_trace()
     return ax, ray_handle
     
+

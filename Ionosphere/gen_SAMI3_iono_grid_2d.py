@@ -11,7 +11,7 @@ geod = Geodesic.WGS84
 class gen_SAMI3_iono_grid_2d:
 
     # Constructor to initialize the needed values to do the conversion
-    def __init__(self, filepath ,azimuth, transmitter_latitude, transmitter_longitude, range_step, height_step, distance, dateTime):
+    def __init__(self, filepath ,azimuth, transmitter_latitude, transmitter_longitude, range_step, height_step, distance, dateTime,start_time):
         self.filepath = filepath
         self.azimuth = azimuth
         self.transmitter_latitude = transmitter_latitude
@@ -20,6 +20,7 @@ class gen_SAMI3_iono_grid_2d:
         self.height_step = height_step
         self.distance = distance
         self.dateTime = dateTime
+        self.start_time = start_time
 
     # calls all of the funtions necesary to create the 2d profile and then returns the 2d profile 
     def get_2d_profile(self):
@@ -30,6 +31,7 @@ class gen_SAMI3_iono_grid_2d:
     # gets the SAMI3 data from the provided filepath
     def get_NetCDF_Data(self):
         dataset =nc.Dataset(self.filepath)
+        
         self.print_NetCDF_Vars(dataset)
         return dataset
     
@@ -50,30 +52,52 @@ class gen_SAMI3_iono_grid_2d:
     
         # Find the index of the nearest date
         nearest_index = date_difference.argmin()
-    
-        return nearest_index
 
+        if(nearest_index ==0):
+            return 1
+        else:
+            return nearest_index
+
+    # a method used to pad the array of data to the ground if the alittudes to not reach the ground 
+    def pad_array_to_ground(self, ionosphere, lowest_altitude):
+        if(lowest_altitude>0):
+            num_zeros:int = int( np.floor(lowest_altitude//self.height_step))
+            paded_ionosphere = np.pad(ionosphere, ((0,0),(num_zeros,0)), mode='constant')
+            return paded_ionosphere
+        else:
+            return ionosphere
 
     # Creates a 2D slice profile of the 3D SAMI3 grid for a transmitter location and a given Azimuth
     def generate_2d_profile(self, SAMI_Data):
 
         # Setup variables from data
-        lats = np.array(SAMI_Data["lat0G"][:])
-        lons = np.array(SAMI_Data["lon0G"][:])
-        alts = np.array(SAMI_Data["alt0G"][:])
-        time = SAMI_Data["time"][:]
+        try:
+            lats = np.array(SAMI_Data["lat0G"][:])
+            lons = np.array(SAMI_Data["lon0G"][:])
+            alts = np.array(SAMI_Data["alt0G"][:])
+            time = SAMI_Data["time"][:]
 
+        except:
+            lats = np.array(SAMI_Data["lat0"][:])
+            lons = np.array(SAMI_Data["lon0"][:])
+            alts = np.array(SAMI_Data["alt0"][:])
+            time = SAMI_Data["time"][:]    
         # convert to dates format that is usable 
-        start_time =dt.datetime(2023,10,13)
-        self.dates = [start_time]
+        self.dates = [self.start_time]
         for x in time:
              if(x!=0):
                 next_time = dt.timedelta(hours = float(x))
-                self.dates.append(start_time+next_time - dt.timedelta(days=1))
+                self.dates.append(self.start_time+next_time - dt.timedelta(days=1))
                 
         selected_date_idx = self.nearest_date_index(self.dates,self.dateTime)
+        print (selected_date_idx)
+        if(selected_date_idx ==0):
+            ipdb.set_trace()
+        try:
+            electron_density = SAMI_Data["dene0G"][selected_date_idx,:,:,:]
 
-        electron_density = SAMI_Data["dene0G"][selected_date_idx,:,:,:]
+        except:
+            electron_density = SAMI_Data["dene0"][selected_date_idx,:,:,:]
 
         # changes longitudes from (0,360) to (-180,180) and sort
         tf = lons > 180
@@ -121,15 +145,14 @@ class gen_SAMI3_iono_grid_2d:
 
         edens_profile       = interp(fLATS,fLONS,fALTS)
         Ne_profile[:,:]    = edens_profile
-      
-        return Ne_profile[0,::]
+
+        return self.pad_array_to_ground( Ne_profile[0,:,:],alts[0]), self.dates[selected_date_idx]
 
 
         # # Create XArray Dataset
         # ds  = xr.Dataset(
         #         data_vars=dict(
         #             electron_density = (['date','range','alt'],Ne_profile),
-        #             dip              = (['date','range','alt'],Ne_profile*0),
         #             glats            = (['range'],field_lats),
         #             glons            = (['range'],field_lons),
         #             edensTHT         = (['range'],edensTHT)
@@ -158,7 +181,6 @@ class gen_SAMI3_iono_grid_2d:
 ## to do ##
 # - make sure we are saving the interpolated data set as a netcdf file. 
 # - possibly have to make the change to account for the altitudes being irregular
-# - fill in bottom of edens with zeros to make sure graph reaches the ground (possibly use fill value on the interpolator)
 # - include plotting code for map
    
 
