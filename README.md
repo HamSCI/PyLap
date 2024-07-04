@@ -23,7 +23,7 @@ File Directory model
 
 ├── PyLap Project folder  
    &emsp;├── PyLap\
-   &emsp;├── PHARLAP\
+   &emsp;├── pharlap_4.5.1\
    &emsp;└── l_comp_lib_2020.4.304_comp.for_redist\
 
 
@@ -57,13 +57,17 @@ File Directory model
 
 12. sudo apt-get install python3-pip
 
-13. pip3 install matplotlib numpy scipy qtpy
+13. python -m venv ${PYTHONPATH}
 
-14. cd $PYTHONPATH 
+14. source ${PYTHONPATH}/bin/activate
 
-15. python3 setup.py install --user
+15. pip3 install matplotlib==3.8.4 numpy==1.26.0 scipy==1.13.1 qtpy pyqt5
 
-16. Use Example folder files as templates to test the installation
+16. cd ${PYTHONPATH}
+
+17. python3 setup.py install
+
+18. Use Example folder files as templates to test the installation
 
     *Note* This is not a one time setup and will have to be redone if the terminal is closed out or if the code project is closed out *Note*
 
