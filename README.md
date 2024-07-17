@@ -14,7 +14,7 @@ Download Steps
 
     *Note* This works for either cloning the github repository or downloading it as a zip file *Note*
 
-4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://registrationcenter-download.intel.com/akdlm/irc_nas/17113/l_comp_lib_2020.4.304_comp.for_redist.tgz 
+4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://www.intel.com/content/www/us/en/developer/articles/tool/redistributable-libraries-for-intel-c-and-fortran-2020-compilers-for-linux.html
 
 5. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete. when promted with where to install this, the default should be the home drive (ex. [/home/UserName]). The default location is fine to use for the installation.
 
