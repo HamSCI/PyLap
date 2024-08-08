@@ -395,7 +395,7 @@ static void buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
 {
 
   /* We can safely use the shape of `iono_en_grid` to represent all the grids
-     * because we already checked that their shapes are identical earlier on. */
+   * because we already checked that their shapes are identical earlier on. */
   npy_intp *grid_shape = PyArray_DIMS(iono_en_grid);
 
   PyArrayObject *iono_grid = (PyArrayObject *)PyArray_Cast(
@@ -415,29 +415,28 @@ static void buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
       NPY_DOUBLE);
   void *irregs_ptr = PyArray_DATA(irregs);
 
-
   for (int i = 0; i < grid_shape[0]; i++)
   {
     for (int j = 0; j < grid_shape[1]; j++)
     {
       npy_intp pos[2] = {i, j};
 
-      ionosphere.eN[j][i] = (*(double *)PyArray_GetPtr(iono_grid, pos)); //houses electron density
-      //fprintf(fp,"%f ", ionosphere.eN[i][j]);
-      ionosphere.eN_5[j][i] = (*(double *)PyArray_GetPtr(iono_grid_5, pos)); //iono 5 minutes from now
+      ionosphere.eN[j][i] = (*(double *)PyArray_GetPtr(iono_grid, pos)); // houses electron density
+      // fprintf(fp,"%f ", ionosphere.eN[i][j]);
+      ionosphere.eN_5[j][i] = (*(double *)PyArray_GetPtr(iono_grid_5, pos)); // iono 5 minutes from now
       ionosphere.col_freq[j][i] = (*(double *)PyArray_GetPtr(col_freq, pos));
     }
-    //fprintf(fp,"\n");
-    ionosphere.irreg_strength[i] = (*(double *)PyArray_GETPTR2(irregs, 0, i)); //nope vals supposed to be really close to zero
-    ionosphere.irreg_sma_dip[i] = (*(double *)PyArray_GETPTR2(irregs, 1, i));  //good
-    ionosphere.irreg_sma_azim[i] = (*(double *)PyArray_GETPTR2(irregs, 2, i)); //good to go
-    ionosphere.dop_spread_sq[i] = (*(double *)PyArray_GETPTR2(irregs, 3, i));  //nope vals supposed to be really close to zero
+    // fprintf(fp,"\n");
+    ionosphere.irreg_strength[i] = (*(double *)PyArray_GETPTR2(irregs, 0, i)); // nope vals supposed to be really close to zero
+    ionosphere.irreg_sma_dip[i] = (*(double *)PyArray_GETPTR2(irregs, 1, i));  // good
+    ionosphere.irreg_sma_azim[i] = (*(double *)PyArray_GETPTR2(irregs, 2, i)); // good to go
+    ionosphere.dop_spread_sq[i] = (*(double *)PyArray_GETPTR2(irregs, 3, i));  // nope vals supposed to be really close to zero
   }
 
-  //fclose(fp);
-  ionosphere.nRange = grid_shape[0]; //num of columns in ion_en-grid_5
-  ionosphere.NumHt = grid_shape[1];  //num of rows in iono_en_grid_5
-  ionosphere.HtMin = height_start;   //range_inc
+  // fclose(fp);
+  ionosphere.nRange = grid_shape[1]; // num of columns in ion_en-grid_5
+  ionosphere.NumHt = grid_shape[0];  // num of rows in iono_en_grid_5
+  ionosphere.HtMin = height_start;   // range_inc
   ionosphere.HtInc = height_inc;
   ionosphere.dRange = range_inc;
 }

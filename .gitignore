@@ -1,0 +1,11 @@
+*.pyc
+
+
+Ionosphere/__pycache__/*
+
+Examples/results/*
+*.nc
+.nc
+*.csv
+
+*.zip

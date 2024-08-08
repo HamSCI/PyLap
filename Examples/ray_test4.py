@@ -20,7 +20,7 @@
 #   V1.0  M.A. Cervera  09/06/2016
 #     Initial Version
 #
-import numpy as np  # py
+import numpy as np  
 import time
 import ctypes as c
 
@@ -29,7 +29,6 @@ from pylap.raytrace_2d import raytrace_2d
 from Ionosphere import gen_iono_grid_2d as gen_iono
 from Plotting import plot_ray_iono_slice as plot_iono
 
-#import raytrace_2d as raytrace
 import matplotlib.pyplot as plt
 
 plt.switch_backend('tkagg')
