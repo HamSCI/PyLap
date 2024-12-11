@@ -54,9 +54,13 @@ sudo apt-get install libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev li
 
 sudo apt-get install python3-pip
 
-pip3 install matplotlib numpy scipy qtpy
+# Create a venv and install the appropriate versions of numpy etc
+python -m venv ${PYTHONPATH}
+source ${PYTHONPATH}/bin/activate
 
-python3 setup.py install --user
+pip3 install matplotlib==3.8.4 numpy==1.26.0 scipy==1.13.1 qtpy pyqt5
+
+python3 setup.py install
 else
 echo "Pylap is already setup"
 echo "if you wish to redo the setup enter the command 'nano .bashrc' in the home directory, delete the filepaths and then run the setup.sh script again"
