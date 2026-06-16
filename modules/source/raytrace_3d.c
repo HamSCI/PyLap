@@ -17,10 +17,10 @@ extern void raytrace_3d_(double *start_lat, double *start_long, double *start_he
 
 static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ray, double *ray_data, double *bearings_data,
                              double *ray_path_data, double *freqs_data, double *elevs_data, int *ray_label, double *ray_state_vec_out);
-static void buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+static int buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                             PyArrayObject *Bx, PyArrayObject *By, PyArrayObject *Bz,
                             PyObject *iono_grid_parms, PyObject *geomag_grid_parms);
-static void verifyIono(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+static int verifyIono(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                        PyArrayObject *Bx, PyArrayObject *By, PyArrayObject *Bz,
                        PyObject *iono_grid_parms, PyObject *geomag_grid_parms);
 void stepmemcpyd(double *dest, double *src, int step, int num_vals);
@@ -42,6 +42,8 @@ static void clear_ionosphere(void)
     ptr_ionosphere = NULL;
   }
 }
+
+
 
 PyObject *raytrace_3d(PyObject *self, PyObject *args)
 {
@@ -110,9 +112,9 @@ PyObject *raytrace_3d(PyObject *self, PyObject *args)
 
   if (init_ionosphere)
   {
-    verifyIono(iono_en_grid, iono_en_grid_5, collision_grid,
+    if (!verifyIono(iono_en_grid, iono_en_grid_5, collision_grid,
                Bx, By, Bz,
-               iono_grid_parms, geomag_grid_parms);
+               iono_grid_parms, geomag_grid_parms)) return NULL;;
   }
 
   /* Ensure that `start_lat` is valid (-90 < nhops <= 90). */
@@ -157,9 +159,9 @@ PyObject *raytrace_3d(PyObject *self, PyObject *args)
   if (init_ionosphere)
   {
 
-    buildIonoStruct(iono_en_grid, iono_en_grid_5, collision_grid,
+    if (!buildIonoStruct(iono_en_grid, iono_en_grid_5, collision_grid,
                     Bx, By, Bz,
-                    iono_grid_parms, geomag_grid_parms);
+                    iono_grid_parms, geomag_grid_parms)) return NULL;
     /* Now the ionosphere has been read in set the iono_exist_in_mem flag to
        indicate this for future raytrace calls */
     iono_exist_in_mem = 1;
@@ -400,93 +402,95 @@ static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ra
   return PyTuple_Pack(3, py_rays, py_ray_paths, py_ray_states);
 }
 
-static void verifyIono(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+static int verifyIono(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                        PyArrayObject *Bx, PyArrayObject *By, PyArrayObject *Bz,
                        PyObject *iono_grid_parms, PyObject *geomag_grid_parms)
 {
-  ASSERT((PyArray_NDIM(iono_en_grid) == 3), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(iono_en_grid) == 3), PyExc_ValueError,
          "invalid shape for iono_en_grid");
-  ASSERT((PyArray_NDIM(iono_en_grid_5) == 3), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(iono_en_grid_5) == 3), PyExc_ValueError,
          "invalid shape for iono_en_grid_5");
-  ASSERT((PyArray_NDIM(collision_grid) == 3), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(collision_grid) == 3), PyExc_ValueError,
          "invalid shape for collision_grid");
 
   npy_intp *iono_en_grid_shape = PyArray_DIMS(iono_en_grid);
   npy_intp *iono_en_grid_5_shape = PyArray_DIMS(iono_en_grid_5);
   npy_intp *collision_grid_shape = PyArray_DIMS(collision_grid);
 
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_shape[0] <= max_num_lat &&
              iono_en_grid_shape[1] <= max_num_lon &&
              iono_en_grid_shape[2] <= max_num_ht),
          PyExc_ValueError, "iono_en_grid is too large");
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_5_shape[0] <= max_num_lat &&
              iono_en_grid_5_shape[1] <= max_num_lon &&
              iono_en_grid_5_shape[2] <= max_num_ht),
          PyExc_ValueError, "iono_en_grid_5 is too large");
-  ASSERT((
+  ASSERT_INT((
              collision_grid_shape[0] <= max_num_lat &&
              collision_grid_shape[1] <= max_num_lon &&
              collision_grid_shape[2] <= max_num_ht),
          PyExc_ValueError, "collision_grid is too large");
 
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_shape[0] == iono_en_grid_5_shape[0] &&
              iono_en_grid_shape[0] == collision_grid_shape[0]),
          PyExc_ValueError, "ionosphere grids have inconsistent row counts");
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_shape[1] == iono_en_grid_5_shape[1] &&
              iono_en_grid_shape[1] == collision_grid_shape[1]),
          PyExc_ValueError, "ionosphere grids have inconsistent column counts");
 
   // check B grid for shape and consistency
-  ASSERT((PyArray_NDIM(Bx) == 3), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(Bx) == 3), PyExc_ValueError,
          "invalid shape for Bx");
-  ASSERT((PyArray_NDIM(By) == 3), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(By) == 3), PyExc_ValueError,
          "invalid shape for By");
-  ASSERT((PyArray_NDIM(By) == 3), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(By) == 3), PyExc_ValueError,
          "invalid shape for Bz");
   npy_intp *Bx_shape = PyArray_DIMS(Bx);
   npy_intp *By_shape = PyArray_DIMS(By);
   npy_intp *Bz_shape = PyArray_DIMS(Bz);
 
-  ASSERT((
+  ASSERT_INT((
              Bx_shape[0] <= 101 &&
              Bx_shape[1] <= 101 &&
              Bx_shape[2] <= 201),
          PyExc_ValueError, "Bx is too large");
-  ASSERT((
+  ASSERT_INT((
              By_shape[0] <= 101 &&
              By_shape[1] <= 101 &&
              By_shape[2] <= 201),
          PyExc_ValueError, "By is too large");
-  ASSERT((
+  ASSERT_INT((
              Bz_shape[0] <= 101 &&
              Bz_shape[1] <= 101 &&
              Bz_shape[2] <= 201),
          PyExc_ValueError, "Bz is too large");
-  ASSERT((
+  ASSERT_INT((
              Bx_shape[0] == By_shape[0] &&
              By_shape[0] == Bz_shape[0]),
          PyExc_ValueError, "B grids have inconsistent row counts");
-  ASSERT((
+  ASSERT_INT((
              Bx_shape[1] == By_shape[1] &&
              By_shape[1] == Bz_shape[1]),
          PyExc_ValueError, "B grids have inconsistent column counts");
-  ASSERT((
+  ASSERT_INT((
              Bx_shape[2] == By_shape[2] &&
              By_shape[2] == Bz_shape[2]),
          PyExc_ValueError, "B grids have inconsistent height counts");
 
   // ensure the parms are valid
-  ASSERT((PyList_Size(iono_grid_parms) == 9), PyExc_ValueError,
+  ASSERT_INT((PyList_Size(iono_grid_parms) == 9), PyExc_ValueError,
          "invalid shape for iono_grid_parms");
-  ASSERT((PyList_Size(geomag_grid_parms) == 9), PyExc_ValueError,
+  ASSERT_INT((PyList_Size(geomag_grid_parms) == 9), PyExc_ValueError,
          "invalid shape for geomag_grid_parms");
+  return 1;
 }
 
-static void buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+
+static int buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                             PyArrayObject *Bx, PyArrayObject *By, PyArrayObject *Bz,
                             PyObject *iono_grid_parms, PyObject *geomag_grid_parms)
 {
@@ -523,24 +527,24 @@ static void buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
   ptr_ionosphere->lat_min = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 0)); //num of columns in ion_en-grid_5
   ptr_ionosphere->lat_inc = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 1)); //num of rows in iono_en_grid_5
   // /* Ensure that `start_lat` is valid (-90 < nhops <= 90). */
-  ASSERT((ptr_ionosphere->lat_min >= -90.0 && ptr_ionosphere->lat_min <= 90.0), PyExc_ValueError,
+  ASSERT_INT((ptr_ionosphere->lat_min >= -90.0 && ptr_ionosphere->lat_min <= 90.0), PyExc_ValueError,
          "lat_min is invalid; must be within the range of -90 through 90");
 
   ptr_ionosphere->num_lat = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 2)); //range_inc
   /* Ensure that `start_lon` is valid (-180 < nhops <= 180). */
-  ASSERT((grid_shape[0] == ptr_ionosphere->num_lat), PyExc_ValueError,
+  ASSERT_INT((grid_shape[0] == ptr_ionosphere->num_lat), PyExc_ValueError,
          "grid shape != num_lat");
 
   ptr_ionosphere->lat_max = ptr_ionosphere->lat_min +
                             (ptr_ionosphere->num_lat - 1) * ptr_ionosphere->lat_inc;
 
   ptr_ionosphere->lon_min = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 3));
-  ASSERT((ptr_ionosphere->lon_min >= -180 && ptr_ionosphere->lon_min <= 180.0), PyExc_ValueError,
+  ASSERT_INT((ptr_ionosphere->lon_min >= -180 && ptr_ionosphere->lon_min <= 180.0), PyExc_ValueError,
          "lon_min must be within -180 and 180");
 
   ptr_ionosphere->lon_inc = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 4));
   ptr_ionosphere->num_lon = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 5));
-  ASSERT((grid_shape[1] == ptr_ionosphere->num_lon), PyExc_ValueError,
+  ASSERT_INT((grid_shape[1] == ptr_ionosphere->num_lon), PyExc_ValueError,
          "grid shape[1] != num_lon");
 
   ptr_ionosphere->lon_max = ptr_ionosphere->lon_min +
@@ -548,7 +552,7 @@ static void buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
   ptr_ionosphere->ht_min = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 6));
   ptr_ionosphere->ht_inc = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 7));
   ptr_ionosphere->num_ht = PyFloat_AsDouble(PyList_GetItem(iono_grid_parms, 8));
-  ASSERT((grid_shape[2] == ptr_ionosphere->num_ht), PyExc_ValueError,
+  ASSERT_INT((grid_shape[2] == ptr_ionosphere->num_ht), PyExc_ValueError,
          "grid shape[2] != num_ht");
 
   ptr_ionosphere->ht_max = ptr_ionosphere->ht_min +
@@ -570,24 +574,24 @@ static void buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
     }
   }
   geomag_field.lat_min = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 0));
-  ASSERT((geomag_field.lat_min >= -90.0 && geomag_field.lat_min <= 90), PyExc_ValueError,
+  ASSERT_INT((geomag_field.lat_min >= -90.0 && geomag_field.lat_min <= 90), PyExc_ValueError,
          "The start latitude of the input geomagnetic field grid must be in the range -90 to 90 degrees.");
 
   geomag_field.lat_inc = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 1));
   geomag_field.num_lat = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 2));
-  ASSERT((dims[0] == geomag_field.num_lat), PyExc_ValueError,
+  ASSERT_INT((dims[0] == geomag_field.num_lat), PyExc_ValueError,
          "The number of latitudes in the input geomagnetic field grid does not match the input grid parameter.");
 
   geomag_field.lat_max = geomag_field.lat_min +
                          (geomag_field.num_lat - 1) * geomag_field.lat_inc;
   geomag_field.lon_min = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 3));
 
-  ASSERT((geomag_field.lon_min >= -180.0 && geomag_field.lon_min <= 180.0), PyExc_ValueError,
+  ASSERT_INT((geomag_field.lon_min >= -180.0 && geomag_field.lon_min <= 180.0), PyExc_ValueError,
          "he start longitude of the input geomagnetic field grid must be in the range -180 to 180 degrees.");
 
   geomag_field.lon_inc = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 4));
   geomag_field.num_lon = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 5));
-  ASSERT((dims[1] == geomag_field.num_lon), PyExc_ValueError,
+  ASSERT_INT((dims[1] == geomag_field.num_lon), PyExc_ValueError,
          "The number of longitudes in the input geomagnetic field grid does not match the input grid parameter.");
 
   geomag_field.lon_max = geomag_field.lon_min +
@@ -595,12 +599,14 @@ static void buildIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
   geomag_field.ht_min = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 6));
   geomag_field.ht_inc = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 7));
   geomag_field.num_ht = PyFloat_AsDouble(PyList_GetItem(geomag_grid_parms, 8));
-  ASSERT((dims[2] == geomag_field.num_ht), PyExc_ValueError,
+  ASSERT_INT((dims[2] == geomag_field.num_ht), PyExc_ValueError,
          "The number of heights in the input geomagnetic field grid does not match the input grid parameter.");
 
   geomag_field.ht_max = geomag_field.ht_min +
                         (geomag_field.num_ht - 1) * geomag_field.ht_inc;
+  return 1;
 }
+
 static PyMethodDef methods[] = {
     {"raytrace_3d", raytrace_3d, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}};

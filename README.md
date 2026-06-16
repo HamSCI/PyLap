@@ -1,76 +1,166 @@
-# Experimental Software Warning
+# PyLap
 
-PyLap is based on the scientific software PHaRLAP and is not meant for operational use as is stated on PHaRLAP's website. any and all risk falls to you if you are using this software.
+A Python 3 wrapper for the PHaRLAP ionospheric raytracer.
 
-## Linux Install Instructions ##
+> **Warning:** PyLap is based on the scientific software PHaRLAP and is not meant for operational use as stated on PHaRLAP's website. Any and all risk falls to you if you are using this software.
 
-*Note* This install is only available for Ubuntu linux systems with X86 CPU's *Note* 
+## About this fork
 
-*Note*  It is also possible to install PyLap using WSL2 with Ubuntu for windows machines running windows 10 and windows 11 *Note* 
+This is a patched fork of [HamSCI/PyLap](https://github.com/HamSCI/PyLap) maintained for use with [hf-timestd](https://github.com/mijahauan/hf-timestd) and other HF-propagation projects. The upstream version will not build or run correctly against current PHaRLAP (4.7.4) without these patches:
 
-Download Steps
+- **PHaRLAP 4.7.4 support** — upstream targets 4.5.x; this fork's `setup.py` links against 4.7.4 static libraries and gracefully skips legacy IRI modules (`iri2007`, `iri2012`) when their `.a` files are absent.
+- **Cross-platform builds** — adds macOS arm64 and macOS x86_64 alongside Linux x86_64 (upstream is Linux-only).
+- **Unified gfortran build** — Intel Fortran redistributable is no longer required; Linux and macOS both build against gfortran, eliminating a significant install-time hurdle.
+- **GCC 14+ compatibility** — adds `-Wno-error=incompatible-pointer-types` so builds succeed on Debian 13/trixie and other distros that ship GCC 14 (which promotes this warning to an error).
+- **Multi-hop stride fix in `raytrace_2d.c`** — the `ray_data` C-array hop stride was `num_rays × 9`; corrected to `num_rays × 24` so fields past hop 0 are read from the right offsets under PHaRLAP 4.7.4.
+- **`iri2016` module now calls IRI-2020** — PHaRLAP 4.7.4 replaced IRI-2016 internals with IRI-2020; the fork's wrapper was updated to match.
+- **Fortran SAVE-variable segfault workaround (caller-side note)** — repeated `raytrace_2d` calls can crash due to persistent Fortran state; make a single call with `nhops=max_hops` and iterate hops in Python.
+- **Ne unit convention (caller-side note)** — IRI-2020 returns electron density in m⁻³ but `raytrace_2d` expects cm⁻³; scale by 10⁻⁶ before passing the grid.
 
-1. Create a folder on the home directory where you will place all of the downloaded resources.
+## Requirements
 
-2. Download PHaRLAP toolbox for matlab and unzip to the directory that you just created https://www.dst.defence.gov.au/our-technologies/pharlap-provision-high-frequency-raytracing-laboratory-propagation-studies .
+- **OS:** Ubuntu/Debian Linux (x86_64), WSL2 on Windows 10/11, macOS (arm64 or x86_64)
+- **Python:** 3.8+
+- **PHaRLAP:** 4.7.4 required for raytracing (request access from DST Australia — see below)
+- **gfortran:** Required to build PyLap and the IRI-2020 Python package — `apt install gfortran` on Linux, `brew install gcc` on macOS. Intel Fortran is **not** required (removed in this fork).
 
-3. Download Pylap from github in the same directory that you just created. 
+## Quick Start
 
-    *Note* This works for either cloning the github repository or downloading it as a zip file *Note*
+### 1. Obtain PHaRLAP
 
-4. Download Redistributable Libraries for Intel® C++ and Fortran 2020. Which is required because the original fortran code was compiled using the Intel fortran compiler. The one used originally is available at the following download link: https://www.intel.com/content/www/us/en/developer/articles/tool/redistributable-libraries-for-intel-c-and-fortran-2020-compilers-for-linux.html
+PHaRLAP is **not** redistributed with this repo — you must obtain it separately.
 
-5. cd within a terminal window into the intel libraries folder and run install.sh, follow the prompt until install complete. when promted with where to install this, the default should be the home drive (ex. [/home/UserName]). The default location is fine to use for the installation.
+**PHaRLAP 4.7.4** (required for raytracing):
+- Request access at https://www.dst.defence.gov.au/our-technologies/pharlap-provision-high-frequency-raytracing-laboratory-propagation-studies
+- DST will email you a download link after reviewing your request (typically 1–3 business days)
+- License restricts use to research; see PHaRLAP's own license terms
+- After extracting, verify `lib/` contains `linux/`, `maca/`, `maci/` subdirectories (these hold the static libraries this fork links against)
 
+Suggested layout:
 
-File Directory model
+```
+~/pylap_project/
+├── PyLap/            # This repository
+└── pharlap_4.7.4/    # PHaRLAP toolbox (from DST)
+```
 
-├── PyLap Project folder  
-   &emsp;├── PyLap\
-   &emsp;├── PHARLAP\
-   &emsp;└── l_comp_lib_2020.4.304_comp.for_redist\
+### 2. Run Setup Script
 
+```bash
+cd ~/pylap_project/PyLap
+. ./setup.sh
+# Enter: ~/pylap_project
+```
 
-## Setup with script file
+The setup script will:
+- Create a Python virtual environment at `PyLap/venv/`
+- Install system dependencies (requires sudo)
+- Install Python packages from `requirements.txt`
+- Build and install PyLap
+- Add a `pylap-activate` alias to your `.bashrc`
 
-1. cd into the pylap project directory.
+### 3. Activate and Run
 
-2. Run the setup.sh script using the command “. ./setup.sh”. running this script will promt you to enter the filepath of the folder that all of your project is installed.
+```bash
+# Activate the virtual environment
+source venv/bin/activate
+# Or use the alias:
+pylap-activate
 
-3. everything should be setup correctly! run the example files that are in the examples folder to make sure everything is setup correctly! if for some reason the example files do not work check the bashrc file in your home directory by using the command "nano .bashrc"(must be in the home directory).
-  
-    *Note* This is a one time setup and does not need to be run again unless a new install is made *Note*
+# Test IRI-2020 (works without PHaRLAP)
+python3 Examples/test_iri2020.py
 
+# Test raytracing (requires PHaRLAP)
+python3 Examples/ray_test1.py
+```
 
+> **Note:** The raytracing examples (`ray_test1.py`, etc.) require PHaRLAP to be installed. Use `test_iri2020.py` to verify your installation before PHaRLAP is available.
 
-## Manual setup
+### 4. Verify the Build
 
-5. export PHARLAP_HOME="your path to pharlap install dir"
+Quick smoke test that confirms PHaRLAP linked correctly and IRI is usable:
 
-6. export PYTHONPATH="Pylap_install_dir"
+```bash
+python3 -c "
+import importlib, math
+iri = importlib.import_module('pylap.iri2016')
+_, oarr = iri.iri2016(40.0, -90.0, 100.0, [2026, 1, 15, 18, 0], 100.0, 10.0, 50, {})
+foF2 = 8.98 * math.sqrt(max(oarr[0], 0)) / 1e6
+print(f'IRI OK — foF2={foF2:.1f} MHz, hmF2={oarr[1]:.0f} km')
+"
+```
 
-7. export LD_LIBRARY="/"YOUR PATH TO DIR"/l_comp_lib_2020.4.304_comp.for_redist/compilers_and_libraries_2020.4.304/linux/compiler/lib/intel64_lin" 
+Expected: `IRI OK — foF2=X.X MHz, hmF2=XXX km` (values depend on solar conditions at the queried date/time). If you see `ImportError` or a Fortran/link error, `PHARLAP_HOME` and `DIR_MODELS_REF_DAT` are probably unset or pointing at the wrong directory.
 
-8. export DIR_MODELS_REF_DAT="{PHARLAP_HOME}/dat"
+## IRI-2020 Ionosphere Model
 
-9. sudo apt-get install python3-tk python3-pil python3-pil.imagetk libqt5gui5 python3-pyqt5 
+PyLap now supports IRI-2020 via the `iri2020` Python package. This works **independently of PHaRLAP** for ionosphere generation.
 
-10. sudo apt-get install libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+### Supported Profile Types
 
-11. source /home/{username}/bin/compilervars.sh intel64
+| Profile Type | Description |
+|--------------|-------------|
+| `'iri'` or `'iri2016'` | IRI-2016 model (default, requires PHaRLAP) |
+| `'iri2020'` | IRI-2020 model (standalone, no PHaRLAP needed) |
+| `'iri2012'` | IRI-2012 model (requires PHaRLAP) |
+| `'iri2007'` | IRI-2007 model (requires PHaRLAP) |
+| `'firi'` | IRI-2016 with FIRI D-region (requires PHaRLAP) |
 
-12. sudo apt-get install python3-pip
+### Example Usage
 
-13. pip3 install matplotlib numpy scipy qtpy
+```python
+from Ionosphere import gen_iono_grid_2d as gen_iono
 
-14. cd $PYTHONPATH 
+# Generate ionosphere using IRI-2020 (no PHaRLAP required)
+iono_pf_grid, iono_pf_grid_5, collision_freq, irreg, iono_te_grid = \
+    gen_iono.gen_iono_grid_2d(
+        origin_lat, origin_long, R12, UT, ray_bear,
+        max_range, num_range, range_inc, start_height,
+        height_inc, num_heights, kp, doppler_flag, 
+        'iri2020'  # Use IRI-2020
+    )
+```
 
-15. python3 setup.py install --user
+## Manual Setup
 
-16. Use Example folder files as templates to test the installation
+If you prefer not to use the setup script:
 
-    *Note* This is not a one time setup and will have to be redone if the terminal is closed out or if the code project is closed out *Note*
+```bash
+# 1. Set environment variables
+export PHARLAP_HOME="/path/to/pharlap_4.7.4"
+export PYTHONPATH="/path/to/PyLap"
+export DIR_MODELS_REF_DAT="${PHARLAP_HOME}/dat"
 
+# 2. Install system dependencies (Linux)
+sudo apt-get install python3-tk python3-pil python3-pil.imagetk \
+    libqt5gui5 python3-pyqt5 python3-venv gfortran
+sudo apt-get install libxcb-randr0-dev libxcb-xtest0-dev \
+    libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
+# macOS equivalent
+# brew install gcc python-tk
 
-## for any questions or for help troubleshooting the install of PyLap please email Devin.diehl@scranton.edu ##
+# 3. Create virtual environment
+cd /path/to/PyLap
+python3 -m venv venv
+source venv/bin/activate
+
+# 4. Install Python packages
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# 5. Build PyLap
+python3 setup.py install
+```
+
+## Re-running Setup
+
+To redo the setup:
+
+1. Edit `~/.bashrc` and remove PyLap environment variables
+2. Delete the venv: `rm -rf PyLap/venv`
+3. Run `setup.sh` again
+
+## Contact
+
+For questions or help troubleshooting, email: Devin.diehl@scranton.edu

@@ -12,13 +12,13 @@ extern void raytrace_2d_(double *origin_lat, double *origin_lon, int *num_rays, 
                          int *nhops_attempted, double *ray_state_vec_in, int *npts_in_ray, double *ray_state_vec_out,
                          double *elapsed_time);
 
-static void verifyIonoGrid(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+static int verifyIonoGrid(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                            PyArrayObject *irreg_grid);
 
 static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ray, double *ray_data,
                              double *ray_path_data, double *freqs_data, double *elevs_data, int *ray_label, double *ray_state_vec_out);
 
-static void buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+static int buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                             PyArrayObject *irreg_grid, double height_start, double height_inc, double range_inc);
 
 static struct ionosphere_struct ionosphere;
@@ -30,14 +30,14 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
 
   Py_ssize_t num_args = PyTuple_Size(args);
 
-  ASSERT((num_args == 8 || num_args == 9 || num_args == 15 || num_args == 16),
+  ASSERT_INT((num_args == 8 || num_args == 9 || num_args == 15 || num_args == 16),
          PyExc_ValueError, "incorrect number of input arguments");
 
   int init_ionosphere = 1;
 
   if (num_args == 8 || num_args == 9)
   {
-    ASSERT(iono_exist_in_mem, PyExc_RuntimeError,
+    ASSERT_INT(iono_exist_in_mem, PyExc_RuntimeError,
            "the ionosphere has not been initialized");
 
     init_ionosphere = 0;
@@ -65,7 +65,7 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
   /* Ensure that `input_ray_state` is the correct size (if supplied). */
   if (num_args == 9 || num_args == 16)
   {
-    ASSERT((PyDict_Size(input_ray_state) == 9), PyExc_ValueError,
+    ASSERT_INT((PyDict_Size(input_ray_state) == 9), PyExc_ValueError,
            "incorrect number of fields in dictionary.");
 
     PyObject *items = PyDict_Values(input_ray_state);
@@ -74,41 +74,41 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
     {
       PyObject *item = PyList_GetItem(items, i);
 
-      ASSERT(PyArray_Check(item), PyExc_ValueError,
+      ASSERT_INT(PyArray_Check(item), PyExc_ValueError,
              "field value must be a numpy array");
-      ASSERT((PyArray_NDIM((PyArrayObject *)item) == 1), PyExc_ValueError,
+      ASSERT_INT((PyArray_NDIM((PyArrayObject *)item) == 1), PyExc_ValueError,
              "invalid shape for field");
 
       npy_intp *item_shape = PyArray_DIMS((PyArrayObject *)item);
 
-      ASSERT((item_shape[0] == elevs_shape[0]), PyExc_ValueError,
+      ASSERT_INT((item_shape[0] == elevs_shape[0]), PyExc_ValueError,
              "invalid size for field");
     }
   }
 
   /* Ensure that `elevs` and `freqs` are the same (and correct) size. */
-  ASSERT((PyArray_NDIM(elevs) == 1), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(elevs) == 1), PyExc_ValueError,
          "invalid shape for elevs");
-  ASSERT((PyArray_NDIM(freqs) == 1), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(freqs) == 1), PyExc_ValueError,
          "invalid shape for freqs");
 
   npy_intp *freqs_shape = PyArray_DIMS(elevs);
 
-  ASSERT((elevs_shape[0] == freqs_shape[0]), PyExc_ValueError,
+  ASSERT_INT((elevs_shape[0] == freqs_shape[0]), PyExc_ValueError,
          "shape of elevs and freqs must be identical");
 
   /* Ensure the ionosphere grids are valid. */
   if (init_ionosphere)
   {
-    verifyIonoGrid(iono_en_grid, iono_en_grid_5, collision_grid, irreg_grid);
+    if (!verifyIonoGrid(iono_en_grid, iono_en_grid_5, collision_grid, irreg_grid)) return NULL;
   }
 
   /* Ensure that `nhops` is valid (0 < nhops <= 50). */
-  ASSERT((nhops > 0 && nhops <= 50), PyExc_ValueError,
+  ASSERT_INT((nhops > 0 && nhops <= 50), PyExc_ValueError,
          "number of hops is invalid; must be within the range of 1 through 50");
 
   /* Ensure that `tol` is valid (can be an integer or list of 3 elements. */
-  ASSERT((
+  ASSERT_INT((
              (PyList_CheckExact(in_tol) && PyList_Size(in_tol) == 3) ||
              PyLong_CheckExact(in_tol) ||
              PyFloat_CheckExact(in_tol)),
@@ -140,8 +140,8 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
   /* Load ionosphere */
   if (init_ionosphere)
   {
-    buidlIonoStruct(iono_en_grid, iono_en_grid_5, collision_grid,
-                    irreg_grid, height_start, height_inc, range_inc);
+    if (!buidlIonoStruct(iono_en_grid, iono_en_grid_5, collision_grid,
+                    irreg_grid, height_start, height_inc, range_inc)) return NULL;
     iono_exist_in_mem = 1;
   }
 
@@ -165,14 +165,14 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
           "the field \"%s\" is missing from input_ray_state.",
           ray_state_fields[field]);
 
-      ASSERT((val != NULL), PyExc_ValueError, message);
+      ASSERT_INT((val != NULL), PyExc_ValueError, message);
 
       sprintf(
           message,
           "the field \"%s\" must be a NumPy array.",
           ray_state_fields[field]);
 
-      ASSERT(PyArray_Check(val), PyExc_ValueError, message);
+      ASSERT_INT(PyArray_Check(val), PyExc_ValueError, message);
 
       sprintf(
           message,
@@ -182,8 +182,8 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
       PyArrayObject *arr = (PyArrayObject *)val;
       arr = (PyArrayObject *)PyArray_Cast(arr, NPY_DOUBLE);
 
-      ASSERT((PyArray_NDIM(arr) == 1), PyExc_ValueError, message);
-      ASSERT((PyArray_DIMS(arr)[0] >= num_rays), PyExc_ValueError, message);
+      ASSERT_INT((PyArray_NDIM(arr) == 1), PyExc_ValueError, message);
+      ASSERT_INT((PyArray_DIMS(arr)[0] >= num_rays), PyExc_ValueError, message);
 
       for (npy_intp i = 0; i < num_rays; i++)
       {
@@ -206,7 +206,7 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
 
   int *nhops_attempted = (int *)malloc(num_rays * sizeof(int));
   int *npts_in_ray = (int *)malloc(num_rays * sizeof(int));
-  ray_data = (double *)malloc(19 * nhops * num_rays * sizeof(double));
+  ray_data = (double *)malloc(24 * nhops * num_rays * sizeof(double));
   ray_path_data = (double *)malloc(9 * MAX_POINTS_IN_RAY * num_rays * sizeof(double));
 
   int *ray_label = (int *)malloc(nhops * num_rays * sizeof(int));
@@ -240,17 +240,19 @@ static PyObject *raytrace_2d(PyObject *self, PyObject *args)
   return result;
 }
 
-static void verifyIonoGrid(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+
+
+static int verifyIonoGrid(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                            PyArrayObject *irreg_grid)
 {
 
-  ASSERT((PyArray_NDIM(iono_en_grid) == 2), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(iono_en_grid) == 2), PyExc_ValueError,
          "invalid shape for iono_en_grid");
-  ASSERT((PyArray_NDIM(iono_en_grid_5) == 2), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(iono_en_grid_5) == 2), PyExc_ValueError,
          "invalid shape for iono_en_grid_5");
-  ASSERT((PyArray_NDIM(collision_grid) == 2), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(collision_grid) == 2), PyExc_ValueError,
          "invalid shape for collision_grid");
-  ASSERT((PyArray_NDIM(irreg_grid) == 2), PyExc_ValueError,
+  ASSERT_INT((PyArray_NDIM(irreg_grid) == 2), PyExc_ValueError,
          "invalid shape for irreg_grid");
 
   npy_intp *iono_en_grid_shape = PyArray_DIMS(iono_en_grid);
@@ -258,32 +260,33 @@ static void verifyIonoGrid(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_g
   npy_intp *collision_grid_shape = PyArray_DIMS(collision_grid);
   npy_intp *irreg_grid_shape = PyArray_DIMS(irreg_grid);
 
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_shape[0] <= max_num_ht &&
              iono_en_grid_shape[1] <= max_num_rng),
          PyExc_ValueError, "iono_en_grid is too large");
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_5_shape[0] <= max_num_ht &&
              iono_en_grid_5_shape[1] <= max_num_rng),
          PyExc_ValueError, "iono_en_grid_5 is too large");
-  ASSERT((
+  ASSERT_INT((
              collision_grid_shape[0] <= max_num_ht &&
              collision_grid_shape[1] <= max_num_rng),
          PyExc_ValueError, "collision_grid is too large");
-  ASSERT((
+  ASSERT_INT((
              irreg_grid_shape[0] == 4 &&
              irreg_grid_shape[1] <= max_num_rng),
          PyExc_ValueError, "irreg_grid is not the correct size");
 
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_shape[0] == iono_en_grid_5_shape[0] &&
              iono_en_grid_shape[0] == collision_grid_shape[0]),
          PyExc_ValueError, "ionosphere grids have inconsistent row counts");
-  ASSERT((
+  ASSERT_INT((
              iono_en_grid_shape[1] == iono_en_grid_5_shape[1] &&
              iono_en_grid_shape[1] == collision_grid_shape[1] &&
              iono_en_grid_shape[1] == irreg_grid_shape[1]),
          PyExc_ValueError, "ionosphere grids have inconsistent column counts");
+  return 1;
 }
 
 static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ray, double *ray_data,
@@ -330,7 +333,7 @@ static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ra
       tmp = PyArray_ZEROS(1, nhops_dims, NPY_DOUBLE, 0);
       tmp_data = PyArray_DATA((PyArrayObject *)tmp);
 
-      stepmemcpyd(tmp_data, &ray_data[idx], num_rays * 9,
+      stepmemcpyd(tmp_data, &ray_data[idx], num_rays * 24,
                   nhops_attempted[ray_id]);
       PyDict_SetItemString(py_ray_data, rays_fields[field_id], tmp);
     }
@@ -390,7 +393,7 @@ static PyObject *buildOutput(int num_rays, int *nhops_attempted, int *npts_in_ra
   return PyTuple_Pack(3, py_rays, py_ray_paths, py_ray_states);
 }
 
-static void buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
+static int buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_grid_5, PyArrayObject *collision_grid,
                             PyArrayObject *irreg_grid, double height_start, double height_inc, double range_inc)
 {
 
@@ -439,7 +442,9 @@ static void buidlIonoStruct(PyArrayObject *iono_en_grid, PyArrayObject *iono_en_
   ionosphere.HtMin = height_start;   // range_inc
   ionosphere.HtInc = height_inc;
   ionosphere.dRange = range_inc;
+  return 1;
 }
+
 
 static PyMethodDef methods[] = {
     {"raytrace_2d", raytrace_2d, METH_VARARGS, ""},

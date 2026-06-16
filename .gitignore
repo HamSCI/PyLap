@@ -1,9 +1,13 @@
 *.pyc
-
+*.so
+build/
+venv/
+__pycache__/
 
 Ionosphere/__pycache__/*
 
 Examples/results/*
+iri2020_test_output.png
 *.nc
 .nc
 *.csv

@@ -167,6 +167,8 @@ from pylap.irreg_strength import irreg_strength
 from pylap.iri2016 import iri2016
 from pylap.iri2012 import iri2012
 from pylap.iri2007 import iri2007
+import iri2020 as iri2020_pkg
+import datetime
 #
 #function [iono_pf_grid,iono_pf_grid_5,collision_freq,irreg,iono_te_grid] = ...
 #    gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim, ...
@@ -194,14 +196,11 @@ def gen_iono_grid_2d(origin_lat, origin_lon, R12, UT, azim,
     # defalut value
 
 
-    if profile_type.lower() != 'chapman_fllhc' and \
-    	profile_type.lower() != 'chapman' and \
-    	profile_type.lower() != 'iri' and \
-      profile_type.lower() != 'iri2007'     and \
-    	profile_type.lower() !=  'iri2012' and \
-    	profile_type.lower() !=  'iri2016'  and \
-    	profile_type.lower() !=  'firi':
-        print('invalid profile type')
+    valid_profile_types = ['chapman_fllhc', 'chapman', 'iri', 'iri2007', 
+                             'iri2012', 'iri2016', 'iri2020', 'firi']
+    if profile_type.lower() not in valid_profile_types:
+        print('invalid profile type: {}. Valid types: {}'.format(
+              profile_type, valid_profile_types))
         sys.exit('gen_iono_grid_2d')
 #*
     fllhc_flag = 0
@@ -380,7 +379,7 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
       #M%%%%%%%%%%%%%%%%%
       #MThis is IRI2012 %
       #M%%%%%%%%%%%%%%%%%
-  elif profile_type.lower == 'iri2012':
+  elif profile_type.lower() == 'iri2012':
     
   #        #M call IRI 2012	   
     iono, iono_extra = iri2012.iri2012(lat, lon, R12, UT, start_height, 
@@ -417,7 +416,7 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
       #M%%%%%%%%%%%%%%%%%
       #MThis is IRI2007 %
       #M%%%%%%%%%%%%%%%%%
-  elif profile_type.lower == 'iri2007':
+  elif profile_type.lower() == 'iri2007':
     #M IRI2007 only returns 100 values for electron density with height - so
     #M determine the number of  multiple calls required.
     max_iri_numhts = 100
@@ -471,6 +470,48 @@ def gen_iono_profile(lat, lon, num_heights, start_height, height_inc,
       iono_ti_prof[idx] = ion_temp
       iono_ti_prof[iono_ti_prof == -1] = np.nan
       iono_te_prof[iono_te_prof == -1] = np.nan
+
+      #M%%%%%%%%%%%%%%%%%
+      #MThis is IRI2020 %
+      #M%%%%%%%%%%%%%%%%%
+  elif profile_type.lower() == 'iri2020':
+    # Use the iri2020 Python package (space-physics/iri2020)
+    # Convert UT array [year, month, day, hour, minute] to datetime
+    dt_time = datetime.datetime(UT[0], UT[1], UT[2], UT[3], UT[4])
+    
+    # Generate height array
+    height_arr = np.arange(num_heights) * height_inc + start_height
+    
+    # Call IRI2020 - returns xarray Dataset
+    iri_result = iri2020_pkg.IRI(dt_time, height_arr, lat, lon)
+    
+    # Extract electron density (m^-3)
+    elec_dens = iri_result['ne'].values
+    elec_dens[np.isnan(elec_dens)] = 0
+    elec_dens[elec_dens < 0] = 0
+    
+    # Extract temperatures
+    iono_te_prof = iri_result['Te'].values
+    iono_ti_prof = iri_result['Ti'].values
+    iono_te_prof[iono_te_prof < 0] = np.nan
+    iono_ti_prof[iono_ti_prof < 0] = np.nan
+    
+    # Calculate plasma frequency (MHz)
+    iono_pf_prof = np.sqrt(pfsq_conv * elec_dens)
+    
+    if doppler_flag:
+      # UT 5 minutes later
+      dt_time_5 = dt_time + datetime.timedelta(minutes=5)
+      iri_result_5 = iri2020_pkg.IRI(dt_time_5, height_arr, lat, lon)
+      elec_dens5 = iri_result_5['ne'].values
+      elec_dens5[np.isnan(elec_dens5)] = 0
+      elec_dens5[elec_dens5 < 0] = 0
+      iono_pf_prof5 = np.sqrt(pfsq_conv * elec_dens5)
+    else:
+      iono_pf_prof5 = iono_pf_prof.copy()
+    
+    # iono_extra placeholder - IRI2020 package returns different structure
+    iono_extra = None
   
   print('leave gen_iono_profile')
 

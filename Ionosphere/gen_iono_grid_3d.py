@@ -154,6 +154,8 @@ from pylap.irreg_strength import irreg_strength
 from pylap.iri2016 import iri2016
 from pylap.iri2012 import iri2012
 from pylap.iri2007 import iri2007
+import iri2020 as iri2020_pkg
+import datetime
 
 def gen_iono_grid_3d(UT, R12, iono_grid_parms,
                      geomag_grid_parms, doppler_flag, 
@@ -167,15 +169,12 @@ def gen_iono_grid_3d(UT, R12, iono_grid_parms,
     else:
         iri_options = {}
 
-    if profile_type.lower() != 'chapman_fllhc' and \
-    	profile_type.lower() != 'chapman' and \
-    	profile_type.lower() != 'iri' and \
-      profile_type.lower() != 'iri2007'     and \
-    	profile_type.lower() !=  'iri2012' and \
-    	profile_type.lower() !=  'iri2016'  and \
-    	profile_type.lower() !=  'firi':
-        print('invalid profile type')
-        sys.exit('gen_iono_grid_2d')
+    valid_profile_types = ['chapman_fllhc', 'chapman', 'iri', 'iri2007', 
+                             'iri2012', 'iri2016', 'iri2020', 'firi']
+    if profile_type.lower() not in valid_profile_types:
+        print('invalid profile type: {}. Valid types: {}'.format(
+              profile_type, valid_profile_types))
+        sys.exit('gen_iono_grid_3d')
 #*
     fllhc_flag = 0
     if profile_type.lower() == 'chapman_fllhc':
@@ -365,7 +364,7 @@ def gen_iono_subgrid(lat, lon_min, lon_inc, lon_max, ht_min, ht_inc,
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #     % This is IRI2016 with FIRI option on %
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        elif profile_type.lower == 'firi':
+        elif profile_type.lower() == 'firi':
 
             num_heights = round((ht_max - ht_min)/ht_inc) + 1
 
@@ -519,6 +518,58 @@ def gen_iono_subgrid(lat, lon_min, lon_inc, lon_max, ht_min, ht_inc,
     #       % calculate collision frequency
                 collision_freq_subgrid[lon_idx,:] = \
                 eff_coll_freq.eff_coll_freq(T_e, T_ion, elec_dens, neutral_dens)
+
+#     %%%%%%%%%%%%%%%%%%%
+#     % This is IRI2020 %
+#     %%%%%%%%%%%%%%%%%%%
+        elif profile_type.lower() == 'iri2020':
+            # Use the iri2020 Python package (space-physics/iri2020)
+            num_heights = round((ht_max - ht_min)/ht_inc) + 1
+            height_arr = np.arange(num_heights) * ht_inc + ht_min
+            
+            # Convert UT array [year, month, day, hour, minute] to datetime
+            dt_time = datetime.datetime(UT[0], UT[1], UT[2], UT[3], UT[4])
+            
+            # Call IRI2020 - returns xarray Dataset
+            iri_result = iri2020_pkg.IRI(dt_time, height_arr, lat, lon)
+            
+            # Extract electron density (m^-3)
+            elec_dens = iri_result['ne'].values
+            elec_dens[np.isnan(elec_dens)] = 0
+            elec_dens[elec_dens < 0] = 0
+            
+            # Calculate plasma frequency (MHz)
+            iono_pf_subgrid[lon_idx] = np.sqrt(elec_dens * pfsq_conv)
+            
+            if doppler_flag:
+                dt_time_5 = dt_time + datetime.timedelta(minutes=5)
+                iri_result_5 = iri2020_pkg.IRI(dt_time_5, height_arr, lat, lon)
+                elec_dens5 = iri_result_5['ne'].values
+                elec_dens5[np.isnan(elec_dens5)] = 0
+                elec_dens5[elec_dens5 < 0] = 0
+                iono_pf_subgrid_5[lon_idx] = np.sqrt(elec_dens5 * pfsq_conv)
+            else:
+                iono_pf_subgrid_5[lon_idx] = np.sqrt(elec_dens * pfsq_conv)
+            
+            # Extract temperatures
+            T_e = iri_result['Te'].values
+            T_e[T_e < 0] = np.nan
+            
+            T_ion = iri_result['Ti'].values
+            T_ion[T_ion < 0] = np.nan
+            
+            # Neutral densities
+            lat_arr = lat * np.ones_like(height_arr)
+            lon_arr = lon * np.ones_like(height_arr)
+            if R12 == -1:
+                [neutral_dens, temp] = nrlmsise00(lat_arr, lon_arr, height_arr, UT)
+            else:
+                f107 = 63.75 + R12*(0.728 + R12*0.00089)
+                [neutral_dens, temp] = nrlmsise00(lat_arr, lon_arr, height_arr, UT, f107, f107, 4)
+            
+            # Calculate collision frequency
+            collision_freq_subgrid[lon_idx,:] = \
+            eff_coll_freq.eff_coll_freq(T_e, T_ion, elec_dens, neutral_dens)
 
  
     return iono_pf_subgrid, iono_pf_subgrid_5, collision_freq_subgrid

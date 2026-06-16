@@ -9,7 +9,6 @@ from Ionosphere import gen_SAMI3_iono_grid_2d as gen_iono
 from Plotting import plot_ray_iono_slice as plot_iono
 import matplotlib.pyplot as plt
 import datetime as dt
-import ipdb
 plt.switch_backend('tkagg')
 
 # Constants

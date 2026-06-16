@@ -1,7 +1,6 @@
 import netCDF4 as nc
 import scipy as sp
 import numpy as np
-import ipdb
 import datetime as dt
 import pandas as pd
 import tqdm

@@ -11,7 +11,6 @@ from Plotting import Plot_map
 import matplotlib.pyplot as plt
 import datetime as dt
 import pandas as pnd
-import ipdb
 import os
 from geographiclib.geodesic import Geodesic
 geod = Geodesic.WGS84

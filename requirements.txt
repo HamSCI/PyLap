@@ -1,12 +1,14 @@
+# Python packages (install with pip)
 scipy
 matplotlib
-python3-tk
-pthon3-phil 
-python3-phil.imagetk
+numpy
 qtpy
 PyQt5
-libxcb-randr0-dev 
-libxcb-xtest0-dev 
-libxcb-xinerama0-dev 
-libxcb-shape0-dev 
-libxcb-xkb-dev
+xarray
+
+# IRI-2020 must be installed from GitHub (requires gfortran):
+# pip install git+https://github.com/space-physics/iri2020.git
+
+# System packages (install with apt-get, not pip):
+# sudo apt-get install python3-tk python3-pil python3-pil.imagetk gfortran
+# sudo apt-get install libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev

@@ -7,7 +7,6 @@ import cartopy.crs as ccrs
 import os
 import netCDF4 as nc
 import datetime as dt
-import ipdb
  
 
 def calculate_scale(data,stddevs=2.,lim='auto'):

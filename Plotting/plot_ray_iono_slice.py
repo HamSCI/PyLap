@@ -74,7 +74,6 @@ import matplotlib.pyplot as plt
 import sys
 import platform
 from qtpy.QtWidgets import QApplication
-import ipdb
 
 
 def plot_ray_iono_slice(iono_grid, start_range, end_range, range_inc,

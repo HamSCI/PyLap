@@ -1,6 +1,6 @@
 #include "../include/pharlap.h"
 
-extern void igrf2016_calc_(float *glat, float *glon, float *dec_year,
+extern void igrf2020_calc_(float *glat, float *glon, float *dec_year,
   float *height, float *dipole_moment, float *babs, float *bnorth, float *beast,
   float *bdown, float *dip, float *dec, float *dip_lat, float *l_value,
   int *l_value_code);
@@ -49,7 +49,7 @@ static PyObject *igrf2016(PyObject *self, PyObject *args)
   int l_value_code;
 
   /* Call subroutine. */
-  igrf2016_calc_(&latitude, &longitude, &dec_year, &height, &dipole_moment,
+  igrf2020_calc_(&latitude, &longitude, &dec_year, &height, &dipole_moment,
     &babs, &bnorth, &beast, &bdown, &dip, &dec, &dip_lat, &l_value,
     &l_value_code);
 

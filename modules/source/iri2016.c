@@ -1,6 +1,6 @@
 #include "../include/pharlap.h"
 
-extern void iri2016_calc_(int *jf, int *jmag, float *glat, float *glon,
+extern void iri2020_calc_(int *jf, int *jmag, float *glat, float *glon,
   int *year, int *mmdd, float *dhour, float *heibeg, float *heiend,
   float *heistep, float *outf, float *oarr);
 
@@ -21,7 +21,7 @@ static PyObject *iri2016(PyObject *self, PyObject *args)
       &PyList_Type, &tm, &height_start, &height_step, &num_heights,
       &PyDict_Type, &iri_options));
 
-  ASSERT_NOMSG(check_ref_data("iri2016"));
+  ASSERT_NOMSG(check_ref_data("iri2020"));
 
   /* Parse UT. */
   int *ut = (int *)malloc(5 * sizeof(int));
@@ -562,7 +562,7 @@ if(obj!=NULL){
 
   int jmag = 0;
 
-  iri2016_calc_(jf, &jmag, &glat, &glon, &year, &mmdd, &dhour, &height_start,
+  iri2020_calc_(jf, &jmag, &glat, &glon, &year, &mmdd, &dhour, &height_start,
     &height_end, &height_step, outf, oarr);
 
   /*
